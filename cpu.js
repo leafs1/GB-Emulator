@@ -78,8 +78,62 @@ var operations = {
 
 
     // contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
-    LDrr: function(r, rPrime) {
-        r = rPrime
-    }
+    LDrrAA: function() {cpu.registers.a = cpu.registers.a; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrAB: function() {cpu.registers.a = cpu.registers.b; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrAC: function() {cpu.registers.a = cpu.registers.c; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrAD: function() {cpu.registers.a = cpu.registers.d; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrAE: function() {cpu.registers.a = cpu.registers.e; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrAH: function() {cpu.registers.a = cpu.registers.h; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrAL: function() {cpu.registers.a = cpu.registers.l; cpu.registers.m = 1; cpu.registers.t = 4},
+
+    LDrrBA: function() {cpu.registers.b = cpu.registers.a; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrBB: function() {cpu.registers.b = cpu.registers.b; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrBC: function() {cpu.registers.b = cpu.registers.c; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrBD: function() {cpu.registers.b = cpu.registers.d; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrBE: function() {cpu.registers.b = cpu.registers.e; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrBH: function() {cpu.registers.b = cpu.registers.h; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrBL: function() {cpu.registers.b = cpu.registers.l; cpu.registers.m = 1; cpu.registers.t = 4},
+
+    LDrrCA: function() {cpu.registers.c = cpu.registers.a; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrCB: function() {cpu.registers.c = cpu.registers.b; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrCC: function() {cpu.registers.c = cpu.registers.c; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrCD: function() {cpu.registers.c = cpu.registers.d; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrCE: function() {cpu.registers.c = cpu.registers.e; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrCH: function() {cpu.registers.c = cpu.registers.h; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrCL: function() {cpu.registers.c = cpu.registers.l; cpu.registers.m = 1; cpu.registers.t = 4},
+    
+    LDrrDA: function() {cpu.registers.d = cpu.registers.a; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrDB: function() {cpu.registers.d = cpu.registers.b; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrDC: function() {cpu.registers.d = cpu.registers.c; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrDD: function() {cpu.registers.d = cpu.registers.d; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrDE: function() {cpu.registers.d = cpu.registers.e; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrDH: function() {cpu.registers.d = cpu.registers.h; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrDL: function() {cpu.registers.d = cpu.registers.l; cpu.registers.m = 1; cpu.registers.t = 4},
+
+    LDrrEA: function() {cpu.registers.e = cpu.registers.a; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrEB: function() {cpu.registers.e = cpu.registers.b; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrEC: function() {cpu.registers.e = cpu.registers.c; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrED: function() {cpu.registers.e = cpu.registers.d; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrEE: function() {cpu.registers.e = cpu.registers.e; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrEH: function() {cpu.registers.e = cpu.registers.h; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrEL: function() {cpu.registers.e = cpu.registers.l; cpu.registers.m = 1; cpu.registers.t = 4},
+
+    LDrrHA: function() {cpu.registers.h = cpu.registers.a; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrHB: function() {cpu.registers.h = cpu.registers.b; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrHC: function() {cpu.registers.h = cpu.registers.c; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrHD: function() {cpu.registers.h = cpu.registers.d; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrHE: function() {cpu.registers.h = cpu.registers.e; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrHH: function() {cpu.registers.h = cpu.registers.h; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrHL: function() {cpu.registers.h = cpu.registers.l; cpu.registers.m = 1; cpu.registers.t = 4},
+
+    LDrrLA: function() {cpu.registers.l = cpu.registers.a; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrLB: function() {cpu.registers.l = cpu.registers.b; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrLC: function() {cpu.registers.l = cpu.registers.c; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrLD: function() {cpu.registers.l = cpu.registers.d; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrLE: function() {cpu.registers.l = cpu.registers.e; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrLH: function() {cpu.registers.l = cpu.registers.h; cpu.registers.m = 1; cpu.registers.t = 4},
+    LDrrLL: function() {cpu.registers.l = cpu.registers.l; cpu.registers.m = 1; cpu.registers.t = 4},
+
+
 
 }
