@@ -31,3 +31,14 @@ console.log(!(0))
 b = 0x80
 
 //console.log(b)
+
+var obj = {
+    a: 5
+}
+
+function d(test) {
+    test += 6
+}
+
+d(obj.a)
+console.log(obj.a)
