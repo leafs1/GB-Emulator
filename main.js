@@ -44,6 +44,11 @@ d(obj.a)
 console.log(obj.a)
 */
 
-console.log(((62 & 0xF) + (34 & 0xF)) & 0x10)
+var a = 0
+a |= 0x10
+a |= 0x80
 
-console.log((62^34^96)&0x10)
+console.log(0x10)
+console.log(a)
+
+console.log((a&0x10)?1:0)
