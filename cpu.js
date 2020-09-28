@@ -100,6 +100,30 @@ var operations = {
         cpu.clock.t = 4
         cpu.clock.m = 1
     },
+    CPac: function() {var temp=cpu.registers.a;temp-=cpu.registers.c;cpu.registers.f |= 0x40;if(!(temp & 255)){cpu.registers.f |= 0x80};
+                if(temp < 0){cpu.registers.f |= 0x10};if((cpu.registers.a^cpu.registers.c^temp)&0x10 == 0x10) {cpu.registers.f|=0x20};
+                cpu.clock.t = 4; cpu.clock.m = 1;      
+    },
+    CPad: function() {var temp=cpu.registers.a;temp-=cpu.registers.d;cpu.registers.f |= 0x40;if(!(temp & 255)){cpu.registers.f |= 0x80};
+                if(temp < 0){cpu.registers.f |= 0x10};if((cpu.registers.a^cpu.registers.d^temp)&0x10 == 0x10) {cpu.registers.f|=0x20};
+                cpu.clock.t = 4; cpu.clock.m = 1;      
+    },
+    CPae: function() {var temp=cpu.registers.a;temp-=cpu.registers.e;cpu.registers.f |= 0x40;if(!(temp & 255)){cpu.registers.f |= 0x80};
+                if(temp < 0){cpu.registers.f |= 0x10};if((cpu.registers.a^cpu.registers.e^temp)&0x10 == 0x10) {cpu.registers.f|=0x20};
+                cpu.clock.t = 4; cpu.clock.m = 1;      
+    },
+    CPah: function() {var temp=cpu.registers.a;temp-=cpu.registers.h;cpu.registers.f |= 0x40;if(!(temp & 255)){cpu.registers.f |= 0x80};
+                if(temp < 0){cpu.registers.f |= 0x10};if((cpu.registers.a^cpu.registers.h^temp)&0x10 == 0x10) {cpu.registers.f|=0x20};
+                cpu.clock.t = 4; cpu.clock.m = 1;      
+    },
+    CPal: function() {var temp=cpu.registers.a;temp-=cpu.registers.l;cpu.registers.f |= 0x40;if(!(temp & 255)){cpu.registers.f |= 0x80};
+                if(temp < 0){cpu.registers.f |= 0x10};if((cpu.registers.a^cpu.registers.l^temp)&0x10 == 0x10) {cpu.registers.f|=0x20};
+                cpu.clock.t = 4; cpu.clock.m = 1;      
+    },
+    CPaa: function() {var temp=cpu.registers.a;temp-=cpu.registers.a;cpu.registers.f |= 0x40;if(!(temp & 255)){cpu.registers.f |= 0x80};
+                if(temp < 0){cpu.registers.f |= 0x10};if((cpu.registers.a^cpu.registers.a^temp)&0x10 == 0x10) {cpu.registers.f|=0x20};
+                cpu.clock.t = 4; cpu.clock.m = 1;      
+    },
 
 
 
