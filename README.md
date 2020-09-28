@@ -1,2 +1,2 @@
-# GBA-Emulator
-My JS make of a Game Boy Advanced Emulator
+# GB-Emulator
+My JS make of a Game Boy Emulator

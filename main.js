@@ -9,7 +9,7 @@ if (!(a & 255)) {
 
 if(!(a&255)) console.log("yes")
 */
-
+/*
 var b = 0
 
 var c = b
@@ -42,3 +42,8 @@ function d(test) {
 
 d(obj.a)
 console.log(obj.a)
+*/
+
+console.log(((62 & 0xF) + (34 & 0xF)) & 0x10)
+
+console.log((62^34^96)&0x10)
