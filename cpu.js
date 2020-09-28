@@ -78,7 +78,50 @@ var operations = {
         cpu.registers.a += b
         cpu.registers.a += (cpu.registers.f & 0x10)?1:0
         
-        cpu.registers.a &= 255 // mask to 8-bits
+        if (cpu.registers.a > 255) {          // Check for carry flag
+            cpu.registers.f = 0x10
+        } else {
+            cpu.registers.f = 0
+        }
+
+        cpu.registers.a &= 255                // Convert to 8-bits
+
+        // if a val when added to 255 with bitewise and is zero, ! in front returns true
+        if (!(cpu.registers.a & 255)) {       // Check for zero flag
+            cpu.registers.f |= 0x80 
+        }        
+
+        // check if operation overflows past 15 (00001111). There has to be a bit carry between the 3rd and 4th (index).
+        if ((((cpu.registers.a & 0xF) + (cpu.registers.a & 0xF)) & 0x10) == 0x10) {     // Check for half-carry flag https://robdor.com/2016/08/10/gameboy-emulator-half-carry-flag/
+            cpu.registers.f |= 0x20
+        }
+
+        cpu.registers.m = 1                   // 1 machine cycle (culmination of 4 clock cycles)
+    },
+    ADCr_c: function() {
+        cpu.registers.a += cpu.registers.c; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (cpu.registers.c & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                        
+    },
+    ADCr_d: function() {
+        cpu.registers.a += cpu.registers.d;cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (cpu.registers.d & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                        
+    },
+    ADCr_e: function() {
+        cpu.registers.a += cpu.registers.e; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (cpu.registers.e & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                       
+    },
+    ADCr_h: function() {
+        cpu.registers.a += cpu.registers.h; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (cpu.registers.h & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                         
+    },
+    ADCr_l: function() {
+        cpu.registers.a += cpu.registers.l; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
     },
 
 
