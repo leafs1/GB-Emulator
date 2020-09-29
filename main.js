@@ -45,12 +45,9 @@ function d(test) {
 d(obj.a)
 console.log(obj.a)
 */
-
 var a = 0
-a |= 0x10
-a |= 0x80
+var b = 0
 
-console.log(0x10)
-console.log(a)
+b = a?3:4
 
-console.log((a&0x10)?1:0)
+console.log(b)
