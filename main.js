@@ -36,6 +36,8 @@ var obj = {
     a: 5
 }
 
+1. subtraction operations carry flag is ?0x50 : 0x40
+
 function d(test) {
     test += 6
 }
