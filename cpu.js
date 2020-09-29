@@ -294,6 +294,29 @@ var operations = {
     XORr_l: function(){cpu.registers.a ^= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
     XORr_a: function(){cpu.registers.a ^= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
 
+    // Increment register
+    INCb: function() {cpu.registers.b ++; cpu.registers.b&=255; cpu.registers.f=cpu.registers.b?0:0x80; cpu.registers.m=1;},
+    INCc: function() {cpu.registers.c ++; cpu.registers.c&=255; cpu.registers.f=cpu.registers.c?0:0x80; cpu.registers.m=1;},
+    INCd: function() {cpu.registers.d ++; cpu.registers.d&=255; cpu.registers.f=cpu.registers.d?0:0x80; cpu.registers.m=1;},
+    INCe: function() {cpu.registers.e ++; cpu.registers.e&=255; cpu.registers.f=cpu.registers.e?0:0x80; cpu.registers.m=1;},
+    INCh: function() {cpu.registers.h ++; cpu.registers.h&=255; cpu.registers.f=cpu.registers.h?0:0x80; cpu.registers.m=1;},
+    INCl: function() {cpu.registers.l ++; cpu.registers.l&=255; cpu.registers.f=cpu.registers.l?0:0x80; cpu.registers.m=1;},
+    INCa: function() {cpu.registers.a ++; cpu.registers.a&=255; cpu.registers.f=cpu.registers.a?0:0x80; cpu.registers.m=1;},
+
+    // Decrement register
+    DECb: function() {cpu.registers.b --; cpu.registers.b&=255; cpu.registers.f=cpu.registers.b?0:0x80; cpu.registers.m=1;},
+    DECc: function() {cpu.registers.c --; cpu.registers.c&=255; cpu.registers.f=cpu.registers.c?0:0x80; cpu.registers.m=1;},
+    DECd: function() {cpu.registers.d --; cpu.registers.d&=255; cpu.registers.f=cpu.registers.d?0:0x80; cpu.registers.m=1;},
+    DECe: function() {cpu.registers.e --; cpu.registers.e&=255; cpu.registers.f=cpu.registers.e?0:0x80; cpu.registers.m=1;},
+    DECh: function() {cpu.registers.h --; cpu.registers.h&=255; cpu.registers.f=cpu.registers.h?0:0x80; cpu.registers.m=1;},
+    DECl: function() {cpu.registers.l --; cpu.registers.l&=255; cpu.registers.f=cpu.registers.l?0:0x80; cpu.registers.m=1;},
+    DECa: function() {cpu.registers.a --; cpu.registers.a&=255; cpu.registers.f=cpu.registers.a?0:0x80; cpu.registers.m=1;},
+
+    
+    // Bit Manupulation ------------------------------------------------------------------------------------------------------------
+
+
+
     // Loading Functions ------------------------------------------------------------------------------------------------------------
     // LDrr, contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
     LDrrAA: function() {cpu.registers.a = cpu.registers.a; cpu.registers.m = 1;},
