@@ -461,6 +461,21 @@ var operations = {
     SET7h: function() { cpu.registers.h|=0x80; cpu.registers.m=2;}, SET7l: function() { cpu.registers.l|=0x80; cpu.registers.m=2;},
     SET7a: function() { cpu.registers.a|=0x80; cpu.registers.m=2;},
 
+    // Shift register 1 bit to the left and carry flag is moved to bit 1.
+    RLA: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag; 
+                    cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=1;},
+    
+    // Shift register 1 bit to the left and set Carry flag and A to 8th bit.
+    RLCA: function() {var C_flag=cpu.registers.a&0x80?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag; 
+        cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=1;},
+
+    // Shift register 1 bit to the right and carry flag is moved to bit 8.
+    RRA: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit1=cpu.registers.a&1?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag; 
+        cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit1; cpu.registers.m=1;},
+
+    // Shift register 1 bit to the right and set Carry flag and A to 1st bit.
+    RRCA: function() {var C_flag=cpu.registers.a&1?0x80:0; var bit1=cpu.registers.a&1?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag; 
+        cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit1; cpu.registers.m=1;},
 
     // Loading Functions ------------------------------------------------------------------------------------------------------------
     // LDrr, contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
