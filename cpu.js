@@ -467,17 +467,66 @@ var operations = {
     
     // Shift register 1 bit to the left and set Carry flag and A to 8th bit.
     RLCA: function() {var C_flag=cpu.registers.a&0x80?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag; 
-        cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=1;},
+                    cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=1;},
 
     // Shift register 1 bit to the right and carry flag is moved to bit 8.
     RRA: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit1=cpu.registers.a&1?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag; 
-        cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit1; cpu.registers.m=1;},
+                    cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit1; cpu.registers.m=1;},
 
     // Shift register 1 bit to the right and set Carry flag and A to 1st bit.
     RRCA: function() {var C_flag=cpu.registers.a&1?0x80:0; var bit1=cpu.registers.a&1?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag; 
-        cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit1; cpu.registers.m=1;},
+                    cpu.registers.a&=255; cpu.registers.f=(cpu.registers.f&0xEF)+bit1; cpu.registers.m=1;},
 
-    // Loading Functions ------------------------------------------------------------------------------------------------------------
+    // Shift register 1 bit to the left and carry flag is moved to bit 1.
+    RLr_b: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.b&0x80?0x10:0; cpu.registers.b=(cpu.registers.b<<1)+C_flag; cpu.registers.b&=255; 
+                    cpu.registers.f=(cpu.registers.b)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},   
+    RLr_c: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.c&0x80?0x10:0; cpu.registers.c=(cpu.registers.c<<1)+C_flag; cpu.registers.b&=255; 
+                    cpu.registers.f=(cpu.registers.c)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLr_d: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.d&0x80?0x10:0; cpu.registers.d=(cpu.registers.d<<1)+C_flag; cpu.registers.b&=255; 
+                    cpu.registers.f=(cpu.registers.d)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLr_e: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.e&0x80?0x10:0; cpu.registers.e=(cpu.registers.e<<1)+C_flag; cpu.registers.b&=255; 
+                    cpu.registers.f=(cpu.registers.e)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;}, 
+    RLr_h: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.h&0x80?0x10:0; cpu.registers.h=(cpu.registers.h<<1)+C_flag; cpu.registers.b&=255; 
+                    cpu.registers.f=(cpu.registers.h)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLr_l: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.l&0x80?0x10:0; cpu.registers.l=(cpu.registers.l<<1)+C_flag; cpu.registers.b&=255; 
+                    cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLr_a: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag; cpu.registers.b&=255; 
+                    cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    
+    // Shift register 1 bit to the left and copy contents of Carry flag to bit 0
+    RLCr_b: function() {var C_flag=cpu.registers.b&0x80?1:0; var bit8=cpu.registers.b&0x80?0x10:0; cpu.registers.b=(cpu.registers.b<<1)+C_flag;
+                        cpu.registers.b&=255; cpu.registers.f=(cpu.registers.b)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLCr_c: function() {var C_flag=cpu.registers.c&0x80?1:0; var bit8=cpu.registers.c&0x80?0x10:0; cpu.registers.c=(cpu.registers.c<<1)+C_flag;
+                        cpu.registers.c&=255; cpu.registers.f=(cpu.registers.c)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLCr_d: function() {var C_flag=cpu.registers.d&0x80?1:0; var bit8=cpu.registers.d&0x80?0x10:0; cpu.registers.d=(cpu.registers.d<<1)+C_flag;
+                        cpu.registers.d&=255; cpu.registers.f=(cpu.registers.d)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLCr_e: function() {var C_flag=cpu.registers.e&0x80?1:0; var bit8=cpu.registers.e&0x80?0x10:0; cpu.registers.e=(cpu.registers.e<<1)+C_flag;
+                        cpu.registers.e&=255; cpu.registers.f=(cpu.registers.e)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLCr_h: function() {var C_flag=cpu.registers.h&0x80?1:0; var bit8=cpu.registers.h&0x80?0x10:0; cpu.registers.h=(cpu.registers.h<<1)+C_flag;
+                        cpu.registers.h&=255; cpu.registers.f=(cpu.registers.h)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLCr_l: function() {var C_flag=cpu.registers.l&0x80?1:0; var bit8=cpu.registers.l&0x80?0x10:0; cpu.registers.l=(cpu.registers.l<<1)+C_flag;
+                        cpu.registers.l&=255; cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+    RLCr_a: function() {var C_flag=cpu.registers.a&0x80?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag;
+                        cpu.registers.a&=255; cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+
+    // Shift register 1 bit to the rigt and copy contents of bit 0 to carry flag and Carry flag to bit 7
+    RRr_b: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.b&1?0x10:0; cpu.registers.b=(cpu.registers.b>>1)+C_flag;
+                        cpu.registers.b&=255; cpu.registers.f=(cpu.registers.b)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
+    RRr_c: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.c&1?0x10:0; cpu.registers.c=(cpu.registers.c>>1)+C_flag;
+                        cpu.registers.c&=255; cpu.registers.f=(cpu.registers.c)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
+    RRr_d: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.d&1?0x10:0; cpu.registers.d=(cpu.registers.d>>1)+C_flag;
+                        cpu.registers.d&=255; cpu.registers.f=(cpu.registers.d)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
+    RRr_e: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.e&1?0x10:0; cpu.registers.e=(cpu.registers.e>>1)+C_flag;
+                        cpu.registers.e&=255; cpu.registers.f=(cpu.registers.e)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
+    RRr_h: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.h&1?0x10:0; cpu.registers.h=(cpu.registers.h>>1)+C_flag;
+                        cpu.registers.h&=255; cpu.registers.f=(cpu.registers.h)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
+    RRr_l: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.l&1?0x10:0; cpu.registers.l=(cpu.registers.l>>1)+C_flag;
+                        cpu.registers.l&=255; cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
+    RRr_a: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.a&1?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag;
+                        cpu.registers.a&=255; cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
+
+
+                            // Loading Functions ------------------------------------------------------------------------------------------------------------
     // LDrr, contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
     LDrrAA: function() {cpu.registers.a = cpu.registers.a; cpu.registers.m = 1;},
     LDrrAB: function() {cpu.registers.a = cpu.registers.b; cpu.registers.m = 1;},
