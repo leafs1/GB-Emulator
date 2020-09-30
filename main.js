@@ -45,8 +45,8 @@ function d(test) {
 d(obj.a)
 console.log(obj.a)
 */
-var a = 0
-var b = 0
+var a = 1
+var b = 1
 
 b = a?3:4
 

@@ -314,7 +314,152 @@ var operations = {
 
     
     // Bit Manupulation ------------------------------------------------------------------------------------------------------------
+    // Test bit at index with register
+    BIT0b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x01)?0:0x80; cpu.registers.m=2;},
+    BIT0c: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.c&0x01)?0:0x80; cpu.registers.m=2;},
+    BIT0d: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.d&0x01)?0:0x80; cpu.registers.m=2;},
+    BIT0e: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.e&0x01)?0:0x80; cpu.registers.m=2;},
+    BIT0h: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.h&0x01)?0:0x80; cpu.registers.m=2;},
+    BIT0l: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.l&0x01)?0:0x80; cpu.registers.m=2;},
+    BIT0a: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.a&0x01)?0:0x80; cpu.registers.m=2;},
 
+    BIT1b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x02)?0:0x80; cpu.registers.m=2;},
+    BIT1c: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.c&0x02)?0:0x80; cpu.registers.m=2;},
+    BIT1d: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.d&0x02)?0:0x80; cpu.registers.m=2;},
+    BIT1e: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.e&0x02)?0:0x80; cpu.registers.m=2;},
+    BIT1h: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.h&0x02)?0:0x80; cpu.registers.m=2;},
+    BIT1l: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.l&0x02)?0:0x80; cpu.registers.m=2;},
+    BIT1a: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.a&0x02)?0:0x80; cpu.registers.m=2;},
+    
+    BIT2b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x03)?0:0x80; cpu.registers.m=2;},
+    BIT2c: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.c&0x03)?0:0x80; cpu.registers.m=2;},
+    BIT2d: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.d&0x03)?0:0x80; cpu.registers.m=2;},
+    BIT2e: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.e&0x03)?0:0x80; cpu.registers.m=2;},
+    BIT2h: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.h&0x03)?0:0x80; cpu.registers.m=2;},
+    BIT2l: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.l&0x03)?0:0x80; cpu.registers.m=2;},
+    BIT2a: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.a&0x03)?0:0x80; cpu.registers.m=2;},
+
+    BIT3b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x04)?0:0x80; cpu.registers.m=2;},
+    BIT3c: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.c&0x04)?0:0x80; cpu.registers.m=2;},
+    BIT3d: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.d&0x04)?0:0x80; cpu.registers.m=2;},
+    BIT3e: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.e&0x04)?0:0x80; cpu.registers.m=2;},
+    BIT3h: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.h&0x04)?0:0x80; cpu.registers.m=2;},
+    BIT3l: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.l&0x04)?0:0x80; cpu.registers.m=2;},
+    BIT3a: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.a&0x04)?0:0x80; cpu.registers.m=2;},
+
+    BIT4b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x05)?0:0x80; cpu.registers.m=2;},
+    BIT4c: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.c&0x05)?0:0x80; cpu.registers.m=2;},
+    BIT4d: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.d&0x05)?0:0x80; cpu.registers.m=2;},
+    BIT4e: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.e&0x05)?0:0x80; cpu.registers.m=2;},
+    BIT4h: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.h&0x05)?0:0x80; cpu.registers.m=2;},
+    BIT4l: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.l&0x05)?0:0x80; cpu.registers.m=2;},
+    BIT4a: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.a&0x05)?0:0x80; cpu.registers.m=2;},
+
+    BIT5b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x06)?0:0x80; cpu.registers.m=2;},
+    BIT5c: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.c&0x06)?0:0x80; cpu.registers.m=2;},
+    BIT5d: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.d&0x06)?0:0x80; cpu.registers.m=2;},
+    BIT5e: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.e&0x06)?0:0x80; cpu.registers.m=2;},
+    BIT5h: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.h&0x06)?0:0x80; cpu.registers.m=2;},
+    BIT5l: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.l&0x06)?0:0x80; cpu.registers.m=2;},
+    BIT5a: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.a&0x06)?0:0x80; cpu.registers.m=2;},
+
+    BIT6b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x07)?0:0x80; cpu.registers.m=2;},
+    BIT6c: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.c&0x07)?0:0x80; cpu.registers.m=2;},
+    BIT6d: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.d&0x07)?0:0x80; cpu.registers.m=2;},
+    BIT6e: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.e&0x07)?0:0x80; cpu.registers.m=2;},
+    BIT6h: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.h&0x07)?0:0x80; cpu.registers.m=2;},
+    BIT6l: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.l&0x07)?0:0x80; cpu.registers.m=2;},
+    BIT6a: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.a&0x07)?0:0x80; cpu.registers.m=2;},
+
+    BIT7b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x08)?0:0x80; cpu.registers.m=2;},
+    BIT7c: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.c&0x08)?0:0x80; cpu.registers.m=2;},
+    BIT7d: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.d&0x08)?0:0x80; cpu.registers.m=2;},
+    BIT7e: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.e&0x08)?0:0x80; cpu.registers.m=2;},
+    BIT7h: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.h&0x08)?0:0x80; cpu.registers.m=2;},
+    BIT7l: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.l&0x08)?0:0x80; cpu.registers.m=2;},
+    BIT7a: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.a&0x08)?0:0x80; cpu.registers.m=2;},
+
+    // Resets bit b in register
+    RES0b: function(){cpu.registers.b &= 0xFE; cpu.registers.m = 2}, RES0c: function(){cpu.registers.c &= 0xFE; cpu.registers.m = 2},
+    RES0d: function(){cpu.registers.d &= 0xFE; cpu.registers.m = 2}, RES0e: function(){cpu.registers.e &= 0xFE; cpu.registers.m = 2},
+    RES0h: function(){cpu.registers.h &= 0xFE; cpu.registers.m = 2}, RES0l: function(){cpu.registers.l &= 0xFE; cpu.registers.m = 2},
+    RES0a: function(){cpu.registers.a &= 0xFE; cpu.registers.m = 2},
+
+    RES1b: function(){cpu.registers.b &= 0xFD; cpu.registers.m = 2}, RES1c: function(){cpu.registers.c &= 0xFD; cpu.registers.m = 2},
+    RES1d: function(){cpu.registers.d &= 0xFD; cpu.registers.m = 2}, RES1e: function(){cpu.registers.e &= 0xFD; cpu.registers.m = 2},
+    RES1h: function(){cpu.registers.h &= 0xFD; cpu.registers.m = 2}, RES1l: function(){cpu.registers.l &= 0xFD; cpu.registers.m = 2},
+    RES1a: function(){cpu.registers.a &= 0xFD; cpu.registers.m = 2},
+
+    RES2b: function(){cpu.registers.b &= 0xFB; cpu.registers.m = 2}, RES2c: function(){cpu.registers.c &= 0xFB; cpu.registers.m = 2},
+    RES2d: function(){cpu.registers.d &= 0xFB; cpu.registers.m = 2}, RES2e: function(){cpu.registers.e &= 0xFB; cpu.registers.m = 2},
+    RES2h: function(){cpu.registers.h &= 0xFB; cpu.registers.m = 2}, RES2l: function(){cpu.registers.l &= 0xFB; cpu.registers.m = 2},
+    RES2a: function(){cpu.registers.a &= 0xFB; cpu.registers.m = 2},
+
+    RES3b: function(){cpu.registers.b &= 0xF7; cpu.registers.m = 2}, RES3c: function(){cpu.registers.c &= 0xF7; cpu.registers.m = 2},
+    RES3d: function(){cpu.registers.d &= 0xF7; cpu.registers.m = 2}, RES3e: function(){cpu.registers.e &= 0xF7; cpu.registers.m = 2},
+    RES3h: function(){cpu.registers.h &= 0xF7; cpu.registers.m = 2}, RES3l: function(){cpu.registers.l &= 0xF7; cpu.registers.m = 2},
+    RES3a: function(){cpu.registers.a &= 0xF7; cpu.registers.m = 2},
+
+    RES4b: function(){cpu.registers.b &= 0xEF; cpu.registers.m = 2}, RES4c: function(){cpu.registers.c &= 0xEF; cpu.registers.m = 2},
+    RES4d: function(){cpu.registers.d &= 0xEF; cpu.registers.m = 2}, RES4e: function(){cpu.registers.e &= 0xEF; cpu.registers.m = 2},
+    RES4h: function(){cpu.registers.h &= 0xEF; cpu.registers.m = 2}, RES4l: function(){cpu.registers.l &= 0xEF; cpu.registers.m = 2},
+    RES4a: function(){cpu.registers.a &= 0xEF; cpu.registers.m = 2},
+
+    RES5b: function(){cpu.registers.b &= 0xDF; cpu.registers.m = 2}, RES5c: function(){cpu.registers.c &= 0xDF; cpu.registers.m = 2},
+    RES5d: function(){cpu.registers.d &= 0xDF; cpu.registers.m = 2}, RES5e: function(){cpu.registers.e &= 0xDF; cpu.registers.m = 2},
+    RES5h: function(){cpu.registers.h &= 0xDF; cpu.registers.m = 2}, RES5l: function(){cpu.registers.l &= 0xDF; cpu.registers.m = 2},
+    RES5a: function(){cpu.registers.a &= 0xDF; cpu.registers.m = 2},
+
+    RES6b: function(){cpu.registers.b &= 0xBF; cpu.registers.m = 2}, RES6c: function(){cpu.registers.c &= 0xBF; cpu.registers.m = 2},
+    RES6d: function(){cpu.registers.d &= 0xBF; cpu.registers.m = 2}, RES6e: function(){cpu.registers.e &= 0xBF; cpu.registers.m = 2},
+    RES6h: function(){cpu.registers.h &= 0xBF; cpu.registers.m = 2}, RES6l: function(){cpu.registers.l &= 0xBF; cpu.registers.m = 2},
+    RES6a: function(){cpu.registers.a &= 0xBF; cpu.registers.m = 2},
+
+    RES7b: function(){cpu.registers.b &= 0x7F; cpu.registers.m = 2}, RES7c: function(){cpu.registers.c &= 0x7F; cpu.registers.m = 2},
+    RES7d: function(){cpu.registers.d &= 0x7F; cpu.registers.m = 2}, RES7e: function(){cpu.registers.e &= 0x7F; cpu.registers.m = 2},
+    RES7h: function(){cpu.registers.h &= 0x7F; cpu.registers.m = 2}, RES7l: function(){cpu.registers.l &= 0x7F; cpu.registers.m = 2},
+    RES7a: function(){cpu.registers.a &= 0x7F; cpu.registers.m = 2},
+    
+    // set the bit in the register
+    SET0b: function() { cpu.registers.b|=0x01; cpu.registers.m=2;}, SET0c: function() { cpu.registers.c|=0x01; cpu.registers.m=2;},
+    SET0d: function() { cpu.registers.d|=0x01; cpu.registers.m=2;}, SET0e: function() { cpu.registers.e|=0x01; cpu.registers.m=2;},
+    SET0h: function() { cpu.registers.h|=0x01; cpu.registers.m=2;}, SET0l: function() { cpu.registers.l|=0x01; cpu.registers.m=2;},
+    SET0a: function() { cpu.registers.a|=0x01; cpu.registers.m=2;},
+    
+    SET1b: function() { cpu.registers.b|=0x02; cpu.registers.m=2;}, SET1c: function() { cpu.registers.c|=0x02; cpu.registers.m=2;},
+    SET1d: function() { cpu.registers.d|=0x02; cpu.registers.m=2;}, SET1e: function() { cpu.registers.e|=0x02; cpu.registers.m=2;},
+    SET1h: function() { cpu.registers.h|=0x02; cpu.registers.m=2;}, SET1l: function() { cpu.registers.l|=0x02; cpu.registers.m=2;},
+    SET1a: function() { cpu.registers.a|=0x02; cpu.registers.m=2;},
+
+    SET2b: function() { cpu.registers.b|=0x04; cpu.registers.m=2;}, SET2c: function() { cpu.registers.c|=0x04; cpu.registers.m=2;},
+    SET2d: function() { cpu.registers.d|=0x04; cpu.registers.m=2;}, SET2e: function() { cpu.registers.e|=0x04; cpu.registers.m=2;},
+    SET2h: function() { cpu.registers.h|=0x04; cpu.registers.m=2;}, SET2l: function() { cpu.registers.l|=0x04; cpu.registers.m=2;},
+    SET2a: function() { cpu.registers.a|=0x04; cpu.registers.m=2;},
+
+    SET3b: function() { cpu.registers.b|=0x08; cpu.registers.m=2;}, SET3c: function() { cpu.registers.c|=0x08; cpu.registers.m=2;},
+    SET3d: function() { cpu.registers.d|=0x08; cpu.registers.m=2;}, SET3e: function() { cpu.registers.e|=0x08; cpu.registers.m=2;},
+    SET3h: function() { cpu.registers.h|=0x08; cpu.registers.m=2;}, SET3l: function() { cpu.registers.l|=0x08; cpu.registers.m=2;},
+    SET3a: function() { cpu.registers.a|=0x08; cpu.registers.m=2;},
+
+    SET4b: function() { cpu.registers.b|=0x10; cpu.registers.m=2;}, SET4c: function() { cpu.registers.c|=0x10; cpu.registers.m=2;},
+    SET4d: function() { cpu.registers.d|=0x10; cpu.registers.m=2;}, SET4e: function() { cpu.registers.e|=0x10; cpu.registers.m=2;},
+    SET4h: function() { cpu.registers.h|=0x10; cpu.registers.m=2;}, SET4l: function() { cpu.registers.l|=0x10; cpu.registers.m=2;},
+    SET4a: function() { cpu.registers.a|=0x10; cpu.registers.m=2;},
+
+    SET5b: function() { cpu.registers.b|=0x20; cpu.registers.m=2;}, SET5c: function() { cpu.registers.c|=0x20; cpu.registers.m=2;},
+    SET5d: function() { cpu.registers.d|=0x20; cpu.registers.m=2;}, SET5e: function() { cpu.registers.e|=0x20; cpu.registers.m=2;},
+    SET5h: function() { cpu.registers.h|=0x20; cpu.registers.m=2;}, SET5l: function() { cpu.registers.l|=0x20; cpu.registers.m=2;},
+    SET5a: function() { cpu.registers.a|=0x20; cpu.registers.m=2;},
+
+    SET6b: function() { cpu.registers.b|=0x40; cpu.registers.m=2;}, SET6c: function() { cpu.registers.c|=0x40; cpu.registers.m=2;},
+    SET6d: function() { cpu.registers.d|=0x40; cpu.registers.m=2;}, SET6e: function() { cpu.registers.e|=0x40; cpu.registers.m=2;},
+    SET6h: function() { cpu.registers.h|=0x40; cpu.registers.m=2;}, SET6l: function() { cpu.registers.l|=0x40; cpu.registers.m=2;},
+    SET6a: function() { cpu.registers.a|=0x40; cpu.registers.m=2;},
+
+    SET7b: function() { cpu.registers.b|=0x80; cpu.registers.m=2;}, SET7c: function() { cpu.registers.c|=0x80; cpu.registers.m=2;},
+    SET7d: function() { cpu.registers.d|=0x80; cpu.registers.m=2;}, SET7e: function() { cpu.registers.e|=0x80; cpu.registers.m=2;},
+    SET7h: function() { cpu.registers.h|=0x80; cpu.registers.m=2;}, SET7l: function() { cpu.registers.l|=0x80; cpu.registers.m=2;},
+    SET7a: function() { cpu.registers.a|=0x80; cpu.registers.m=2;},
 
 
     // Loading Functions ------------------------------------------------------------------------------------------------------------
