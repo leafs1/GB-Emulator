@@ -9,7 +9,54 @@ var cpu = {
     //initialize registers (a-f = 8-bit, pc and sp = 16-bit, m and t for clock)
     registers: {
         a:0, b:0, c:0, d:0, e:0, h:0, l:0, f:0, pc:0, sp:0, m:0
+        // Flags = Z(0x80), N(0x40), H(0x20), C(0x10)
     },    
+}
+
+var util = {
+// Util functions -----------------------------------------------------------------------------------------------------------
+    // Set flags
+    setZ: function(num){
+        if(num == 1) {
+            cpu.registers.f |= 0x80
+        } else if (num == 0) {
+            cpu.registers.f &= 0x7f
+        } else {
+            console.log("invalid num for setZ()")
+        }
+    },
+    setN: function(num){
+        if(num == 1) {
+            cpu.registers.f |= 0x40
+        } else if (num == 0) {
+            cpu.registers.f &= 0xbf
+        } else {
+            console.log("invalid num for setN()")
+        }
+    },
+    setH: function(num){
+        if(num == 1) {
+            cpu.registers.f |= 0x20
+        } else if (num == 0) {
+            cpu.registers.f &= 0xdf
+        } else {
+            console.log("invalid num for setH()")
+        }
+    },
+    setC: function(num){
+        if(num == 1) {
+            cpu.registers.f |= 0x10
+        } else if (num == 0) {
+            cpu.registers.f &= 0xef
+        } else {
+            console.log("invalid num for setC()")
+        }
+    },
+
+    // Check for Z flag in register
+    checkForZ: function(reg){
+        (reg)?this.setZ(0):this.setZ(1)
+    },
 }
 
 // Hold all processing operations done by the cpu
@@ -589,7 +636,25 @@ var operations = {
     SRAr_a: function(){var bit8=cpu.registers.a&0x80; var C_flag=(cpu.registers.a&1)?0x10:0; ((cpu.registers.a>>1)+bit8)&255; 
                         cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+C_flag; cpu.registers.m=2;},
 
+    // m operand shifter 1 bit to the right. Bit 0 copied to C flag and bit 7 is reset.
+    SRLr_b: function() { var co=cpu.registers.b&1?0x10:0; cpu.registers.b=(cpu.registers.b>>1)&255; 
+                        cpu.registers.f=(cpu.registers.b)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=2; },
+    SRLr_c: function() { var co=cpu.registers.c&1?0x10:0; cpu.registers.c=(cpu.registers.c>>1)&255; 
+                        cpu.registers.f=(cpu.registers.c)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=2; },
+    SRLr_d: function() { var co=cpu.registers.d&1?0x10:0; cpu.registers.d=(cpu.registers.d>>1)&255; 
+                        cpu.registers.f=(cpu.registers.d)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=2; },
+    SRLr_e: function() { var co=cpu.registers.e&1?0x10:0; cpu.registers.e=(cpu.registers.e>>1)&255; 
+                        cpu.registers.f=(cpu.registers.e)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=2; },
+    SRLr_h: function() { var co=cpu.registers.h&1?0x10:0; cpu.registers.h=(cpu.registers.h>>1)&255; 
+                        cpu.registers.f=(cpu.registers.h)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=2; },
+    SRLr_l: function() { var co=cpu.registers.l&1?0x10:0; cpu.registers.l=(cpu.registers.l>>1)&255; 
+                        cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=2; },
+    SRLr_a: function() { var co=cpu.registers.a&1?0x10:0; cpu.registers.a=(cpu.registers.a>>1)&255; 
+                        cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=2; },
 
+    // Flip all bits in A reg
+    CPL: function() {cpu.registers.a ^= 255; util.setN(1); util.setH(1)},
+    
 
     // Loading Functions ------------------------------------------------------------------------------------------------------------
     // LDrr, contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
