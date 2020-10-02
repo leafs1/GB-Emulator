@@ -45,8 +45,4 @@ function d(test) {
 d(obj.a)
 console.log(obj.a)
 */
-var m = 7
-for (var i =7; i >=0; i--) {
-    bit = m & (1<<i)
-    invertedBinaryBit = bit?0:1
-}
+(0)?console.log("yes"):console.log("no")

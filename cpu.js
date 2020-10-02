@@ -13,7 +13,7 @@ var cpu = {
     },    
 }
 
-var util = {
+var utils = {
 // Util functions -----------------------------------------------------------------------------------------------------------
     // Set flags
     setZ: function(num){
@@ -653,8 +653,17 @@ var operations = {
                         cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=2; },
 
     // Flip all bits in A reg
-    CPL: function() {cpu.registers.a ^= 255; util.setN(1); util.setH(1)},
+    CPL: function() {cpu.registers.a ^= 255; utils.setN(1); utils.setH(1); cpu.registers.m=1;},
     
+    // Sub A from 0 - May be depreciated. Not finished
+    //NEG: function() {cpu.registers.a = 0-cpu.registers.a; (cpu.registers.a)?utils.setZ(0):utils.setZ(1); utils.setN(1);},
+
+    // Flips the carry flag and clears N and H flags.
+    CCF: function() {(cpu.registers.f&0x10)?utils.setC(0):utils.setC(1); utils.setN(0); utils.setH(0); cpu.registers.m=1;},
+
+    // Set Carry flag and reset N and H
+    SCF: function() {utils.setC(1); utils.setN(0); utils.setH(0); cpu.registers.m=1;},
+        
 
     // Loading Functions ------------------------------------------------------------------------------------------------------------
     // LDrr, contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
