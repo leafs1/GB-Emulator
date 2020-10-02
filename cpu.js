@@ -750,4 +750,45 @@ var operations = {
     LDBCmA: function() {MMU.wb((cpu.registers.b<<8)+cpu.registers.c, cpu.registers.a); cpu.registers.m=2;},
     LDDEmA: function() {MMU.wb((cpu.registers.d<<8)+cpu.registers.e, cpu.registers.a); cpu.registers.m=2;},
 
+    // Load content in BC into A
+    LDABCm: function () {cpu.registers.a = MMU.rb((cpu.registers.b << 8)+cpu.registers.c); cpu.registers.m = 2;},
+
+    // Load content in DE into A
+    LDADEm: function() {cpu.registers.a = MMU.rb((cpu.registers.d << 8) + cpu.registers.e); cpu.registers.m = 2;},
+
+    // Load A reg into mem address in PC
+    LDmmA: function() {MMU.wb(MMU.rw(cpu.registers.pc), cpu.registers.a); cpu.registers.pc+=2; cpu.registers.m=4},
+
+    // Load content in mem address in PC into A
+    LDAmm: function() {cpu.registers.a = MMU.rb(MMU.rw(cpu.registers.pc)); cpu.registers.pc += 2; cpu.registers.m = 4;},
+
+    // Loads 16-bit nn into BC, DE, HL or SP
+    LDBCnn: function() {cpu.registers.c = MMU.rb(cpu.registers.pc); cpu.registers.b = MMU.rb(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
+    LDDEnn: function() {cpu.registers.e = MMU.rb(cpu.registers.pc); cpu.registers.d = MMU.rb(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
+    LDHLnn: function() {cpu.registers.l = MMU.rb(cpu.registers.pc); cpu.registers.h = MMU.rb(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
+    LDSPnn: function() {cpu.registers.sp= MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; cpu.registers.m=3;},
+
+    // contents of mm loaded into HL
+    LDHLmm: function() {var mm = MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; cpu.registers.l=MMU.rb(mm); cpu.registers.h=MMU.rb(mm+1); cpu.registers.m=5;},
+
+    // contents of HL loaded into mm
+    LDmmHL: function() {var mm = MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; MMU.ww(mm, (cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=5;},    
+
+    // Set A to HL and sets L and H
+    LDHLIA: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.l=(cpu.registers.l+1)&255; 
+                        if(!cpu.registers.l) cpu.registers.h=(cpu.registers.h+1)&255; cpu.registers.m=2;},
+    LDAHLI: function() {cpu.registers.a=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.l=(cpu.registers.l+1)&255; 
+                        if(!cpu.registers.l) cpu.registers.h=(cpu.registers.h+1)&255; cpu.registers.m=2; },
+
+    // Set HL to A and sets L and H
+    LDHLDA: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.l=(cpu.registers.l-1)&255; 
+                        if(cpu.registers.l==255) cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=2;},
+    LDAHLD: function() {cpu.registers.a=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.l=(cpu.registers.l-1)&255; 
+                        if(cpu.registers.l==255) cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=2;},
+
+    //
+    
+
+
+
 }
