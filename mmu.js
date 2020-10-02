@@ -1,4 +1,4 @@
-MMU = {
+export default MMU = {
     // Read 8-bit byte from a given address
     rb: function(addr) {},
 

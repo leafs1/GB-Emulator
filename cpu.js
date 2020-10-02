@@ -1,5 +1,4 @@
-// If not flag, set it to 0x7f
-
+import {MMU} from './mmu'
 
 // Hold the internal state vals
 var cpu = {
@@ -663,7 +662,7 @@ var operations = {
 
     // Set Carry flag and reset N and H
     SCF: function() {utils.setC(1); utils.setN(0); utils.setH(0); cpu.registers.m=1;},
-        
+
 
     // Loading Functions ------------------------------------------------------------------------------------------------------------
     // LDrr, contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
@@ -717,5 +716,38 @@ var operations = {
     LDrrLH: function() {cpu.registers.l = cpu.registers.h; cpu.registers.m = 1;},
     LDrrLL: function() {cpu.registers.l = cpu.registers.l; cpu.registers.m = 1;},
 
-    
+    // 8-bit part of HL loaded into reg
+    LDrHLm_b: function() {cpu.registers.b = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+    LDrHLm_c: function() {cpu.registers.c = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+    LDrHLm_d: function() {cpu.registers.d = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+    LDrHLm_e: function() {cpu.registers.e = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+    LDrHLm_h: function() {cpu.registers.h = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+    LDrHLm_l: function() {cpu.registers.l = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+    LDrHLm_a: function() {cpu.registers.a = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+
+    // register is loaded into HL
+    LDHLmr_b: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.b); cpu.registers.m=3;},
+    LDHLmr_c: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.c); cpu.registers.m=3;},
+    LDHLmr_d: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.d); cpu.registers.m=3;},
+    LDHLmr_e: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.e); cpu.registers.m=3;},
+    LDHLmr_h: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.h); cpu.registers.m=3;},
+    LDHLmr_l: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.l); cpu.registers.m=3;},
+    LDHLmr_a: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.m=3;},
+
+    // load n into register
+    LDrn_b: function() {cpu.registers.b = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+    LDrn_c: function() {cpu.registers.c = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+    LDrn_d: function() {cpu.registers.d = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+    LDrn_e: function() {cpu.registers.e = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+    LDrn_h: function() {cpu.registers.h = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+    LDrn_l: function() {cpu.registers.l = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+    LDrn_a: function() {cpu.registers.a = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+
+    // load mem address (mn) into HL
+    LDHLmn: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, MMU.rb(cpu.registers.pc)); cpu.registers.pc++; cpu.registers.m=3;},
+
+    // A loaded into BC or DE
+    LDBCmA: function() {MMU.wb((cpu.registers.b<<8)+cpu.registers.c, cpu.registers.a); cpu.registers.m=2;},
+    LDDEmA: function() {MMU.wb((cpu.registers.d<<8)+cpu.registers.e, cpu.registers.a); cpu.registers.m=2;},
+
 }
