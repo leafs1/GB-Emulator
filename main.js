@@ -46,3 +46,11 @@ d(obj.a)
 console.log(obj.a)
 */
 (0)?console.log("yes"):console.log("no")
+
+var a = 65535
+a++
+if (a > 65535) {
+    a = 0
+}
+
+console.log(a)

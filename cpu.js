@@ -376,6 +376,8 @@ var operations = {
     ANDr_h: function(){cpu.registers.a &= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
     ANDr_l: function(){cpu.registers.a &= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
     ANDr_a: function(){cpu.registers.a &= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
+    ANDHL: function(){cpu.registers.a&=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+    ANDn: function(){cpu.registers.a&=MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
 
     // OR operation on registers
     ORr_b: function(){cpu.registers.a |= cpu.registers.b; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
@@ -385,6 +387,8 @@ var operations = {
     ORr_h: function(){cpu.registers.a |= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
     ORr_l: function(){cpu.registers.a |= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
     ORr_a: function(){cpu.registers.a |= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
+    ORHL: function(){cpu.registers.a |= MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+    ORn: function(){cpu.registers.a |= MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
 
     // XOR operation on registers
     XORr_b: function(){cpu.registers.a ^= cpu.registers.b; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
@@ -394,6 +398,8 @@ var operations = {
     XORr_h: function(){cpu.registers.a ^= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
     XORr_l: function(){cpu.registers.a ^= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
     XORr_a: function(){cpu.registers.a ^= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
+    XORHL: function(){cpu.registers.a ^= MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+    XORn: function(){cpu.registers.a ^= MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
 
     // Increment register
     INCb: function() {cpu.registers.b ++; cpu.registers.b&=255; cpu.registers.f=cpu.registers.b?0:0x80; cpu.registers.m=1;},
@@ -403,6 +409,12 @@ var operations = {
     INCh: function() {cpu.registers.h ++; cpu.registers.h&=255; cpu.registers.f=cpu.registers.h?0:0x80; cpu.registers.m=1;},
     INCl: function() {cpu.registers.l ++; cpu.registers.l&=255; cpu.registers.f=cpu.registers.l?0:0x80; cpu.registers.m=1;},
     INCa: function() {cpu.registers.a ++; cpu.registers.a&=255; cpu.registers.f=cpu.registers.a?0:0x80; cpu.registers.m=1;},
+    INCHLm: function() {var incremented=MMU.rb((cpu.registers.h<<8)+cpu.registers.l);if(incremented==0xff){incremented=0;utils.setZ(1)}else{incremented++; utils.setZ(0)}; 
+                        MMU.wb((cpu.registers.h<<8)+cpu.registers.l, incremented); ((incremented&0x0f)==0)?utils.setH(1):utils.setH(0); utils.setN(0); cpu.registers.m=3;},
+    INCBC: function() {cpu.registers.c=(cpu.registers.c+1)&255; (cpu.registers.c)?null:cpu.registers.b=(cpu.registers.b+1)&255; cpu.registers.m=1;},
+    INCDE: function() {cpu.registers.e=(cpu.registers.e+1)&255; (cpu.registers.e)?null:cpu.registers.d=(cpu.registers.d+1)&255; cpu.registers.m=1;},
+    INCHL: function() {cpu.registers.l=(cpu.registers.l+1)&255; (cpu.registers.l)?null:cpu.registers.h=(cpu.registers.h+1)&255; cpu.registers.m=1;},
+    INCSP: function() {cpu.registers.sp++; (cpu.registers.sp>65535)?cpu.registers.sp=0:null; cpu.registers.m=1;},
 
     // Decrement register
     DECb: function() {cpu.registers.b --; cpu.registers.b&=255; cpu.registers.f=cpu.registers.b?0:0x80; cpu.registers.m=1;},
@@ -412,8 +424,13 @@ var operations = {
     DECh: function() {cpu.registers.h --; cpu.registers.h&=255; cpu.registers.f=cpu.registers.h?0:0x80; cpu.registers.m=1;},
     DECl: function() {cpu.registers.l --; cpu.registers.l&=255; cpu.registers.f=cpu.registers.l?0:0x80; cpu.registers.m=1;},
     DECa: function() {cpu.registers.a --; cpu.registers.a&=255; cpu.registers.f=cpu.registers.a?0:0x80; cpu.registers.m=1;},
+    DECHLm: function() {var decremented=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); ((decremented&0x0f)==0)?utils.setH(1):utils.setH(0); utils.setN(1);  
+                        (decremented==0)?decremented=0xff:decremented--; if(decremented==0){utils.setZ(1)}else{utils.setZ(0)}; 
+                        MMU.wb((cpu.registers.h<<8)+cpu.registers.l, decremented);  cpu.registers.m=3;},
+    DECBC: function() {cpu.registers.c=(cpu.registers.c-1)&255; (cpu.registers.c==255)?null:cpu.registers.b=(cpu.registers.b-1)&255; cpu.registers.m=1;},
+    DECDE: function() {cpu.registers.e=(cpu.registers.e-1)&255; (cpu.registers.e==255)?null:cpu.registers.d=(cpu.registers.d-1)&255; cpu.registers.m=1;},
+    DECHL: function() {cpu.registers.l=(cpu.registers.l-1)&255; (cpu.registers.l==255)?null:cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=1;},
 
-    
     // Bit Manupulation ------------------------------------------------------------------------------------------------------------
     // Test bit at index with register
     BIT0b: function() {cpu.registers.f&=0x1F; cpu.registers.f|=0x20; cpu.registers.f=(cpu.registers.b&0x01)?0:0x80; cpu.registers.m=2;},
