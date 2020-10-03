@@ -118,6 +118,34 @@ var operations = {
         if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
         if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
     },
+    AddHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a += hl; 
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 2;}, 
+    
+    // Add info at PC mem address to A
+    Addn: function() {var n=MMU.rb(cpu.registers.pc); cpu.registers.a += n; 
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 2;},
+    
+    // Add BC to HL
+    AddHLBC: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.b<<8)+cpu.registers.c; (hl>65535)?utils.setH(1):utils.setH(0);
+                        if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
+    
+    // Add DE to HL
+    AddHLDE: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.d<<8)+cpu.registers.e; (hl>65535)?utils.setH(1):utils.setH(0);
+                        if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
+
+    // Add HL to itself
+    AddHLHL: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.h<<8)+cpu.registers.l; (hl>65535)?utils.setH(1):utils.setH(0);
+                        if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
+
+    // Add HL to SP
+    AddHLSP: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=cpu.registers.sp; (hl>65535)?utils.setH(1):utils.setH(0);
+                        if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
+
+    // Add content at mem address, PC, to SP
+    ADDSPn: function() {var i=MMU.rb(cpu.registers.pc); if(i>127) i=-((~i+1)&255); cpu.registers.pc++; cpu.registers.sp+=i; cpu.registers.m=4;},
+
 
     // inputted register and C flag are added to A
     ADCr_b: function(){
@@ -174,6 +202,14 @@ var operations = {
         cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
         if ((((cpu.registers.a & 0xF) + (cpu.registers.a & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
     },
+    ADCHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a += hl; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (hl & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
+    },
+    ADCn: function() {var n=MMU.rb(cpu.registers.pc); cpu.registers.a += n; cpu.registers.pc++; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+        if ((((cpu.registers.a & 0xF) + (n & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
+    },
 
     // Subtraction from a that doesnt update a but it updates the flags if it were to happen
     CPab: function() { 
@@ -226,6 +262,10 @@ var operations = {
             if(!(temp & 255)){cpu.registers.f |= 0x80};if((cpu.registers.a^cpu.registers.a^temp)&0x10 == 0x10) {cpu.registers.f|=0x20};
             cpu.registers.m = 1;      
     },
+    CPHL: function() {var temp=cpu.registers.a; var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); temp-=hl; cpu.registers.f|=0x40; 
+                    temp&=255; if(!temp) cpu.registers.f|=0x80; if((cpu.registers.a^temp^hl)&0x10) cpu.registers.f|=0x20; cpu.registers.m=2;},
+    CPn: function() {var temp=cpu.registers.a; var n=MMU.rb(cpu.registers.pc); temp-=n; cpu.registers.pc++; cpu.registers.f|=0x40; 
+                    temp&=255; if(!temp) cpu.registers.f|=0x80; if((cpu.registers.a^temp^hl)&0x10) cpu.registers.f|=0x20; cpu.registers.m=2;},
 
     // Subtract any reg from a
     SUBr_b: function() {
@@ -263,6 +303,13 @@ var operations = {
         if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (cpu.registers.a & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
         cpu.registers.m = 1;      
     },
+    SUBHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a -= hl; cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
+        if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (hl & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
+        cpu.registers.m = 2;
+    },
+    SUBn: function() {var n=MMU.rb(cpu.registers.pc); cpu.registers.a -= n; cpu.registers.pc++; cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
+        if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (n & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
+        cpu.registers.m = 2;},
 
     // register and carry flag are subtracted from A
     SBCr_b: function(){
@@ -307,10 +354,18 @@ var operations = {
         if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (cpu.registers.a & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
         cpu.registers.m = 1;
     },
+    SBCHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a -= hl; cpu.registers.a -= (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
+        if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (hl & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
+        cpu.registers.m = 2;},
+    SBCn: function() {var n=MMU.rb(cpu.registers.pc); cpu.registers.a -= n; cpu.registers.a -= (cpu.registers.f & 0x10)?1:0;
+        cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
+        if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (n & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
+        cpu.registers.m = 2;},
 
     // Adjust A reg for BCD addition and subtraction
-    DAA: function(){var a=Z80._r.a; if((Z80._r.f&0x20)||((Z80._r.a&15)>9)) Z80._r.a+=6; Z80._r.f&=0xEF; 
-        if((Z80._r.f&0x20)||(a>0x99)) { Z80._r.a+=0x60; Z80._r.f|=0x10; } Z80._r.m=1;
+    DAA: function(){var a=cpu.registers.a; if((cpu.registers.f&0x20)||((cpu.registers.a&15)>9)) cpu.registers.a+=6; cpu.registers.f&=0xEF; 
+        if((cpu.registers.f&0x20)||(a>0x99)) { cpu.registers.a+=0x60; cpu.registers.f|=0x10; } cpu.registers.m=1;
     },
 
     // AND operation on registers
@@ -786,9 +841,38 @@ var operations = {
     LDAHLD: function() {cpu.registers.a=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.l=(cpu.registers.l-1)&255; 
                         if(cpu.registers.l==255) cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=2;},
 
-    //
+    // Get value from mem address in PC appended to 0xFF00.
+    LDAIOn: function() {cpu.registers.a=MMU.rb(0xFF00+MMU.rb(cpu.registers.pc)); cpu.registers.pc++; cpu.registers.m=3;},
+
+    // Add A to right half(lower 8 bits) of value in mem address pc.
+    LDIOnA: function() {MMU.wb(0xFF00+MMU.rb(cpu.registers.pc),cpu.registers.a); cpu.registers.pc++; cpu.registers.m=3;},
+
+    // set A to reg C added to 0xFF00
+    LDAIOC: function() {cpu.registers.a=MMU.rb(0xFF00+cpu.registers.c); cpu.registers.m=2;},
+
+    // set mem address of reg c added to 0xFF00 to A
+    LDIOCA: function() {MMU.wb(0xFF00+cpu.registers.c,cpu.registers.a); cpu.registers.m=2;},
+
+    // load hl into stack pointer. 
+    LDSPHL: function() {cpu.registers.sp = (cpu.registers.h<<8)+cpu.registers.l; cpu.registers.m=2;},
     
+    // Put SP + signed n effective address into HL
+    LDHLSPn: function() {var i=MMU.rb(cpu.registers.pc); if(i>127) i=-((~i+1)&255); cpu.registers.pc++; i+=cpu.registers.sp; 
+                        cpu.registers.h=(i>>8)&255; cpu.registers.l=i&255; cpu.registers.m=3;},
 
-
-
+    // Swaps halfs of 8-bit regs and set reg to it 
+    SWAPr_b: function() {var originalB=cpu.registers.b; cpu.registers.b=((originalB&0xF)<<4)|((originalB&0xF0)>>4); 
+                        (cpu.registers.b)?utils.setZ(0):utils.setZ(1); utils.setN(0); utils.setH(0); utils.setC(0); cpu.registers.m=2;},
+    SWAPr_c: function() {var originalC=cpu.registers.c; cpu.registers.c=((originalC&0xF)<<4)|((originalC&0xF0)>>4); 
+                        (cpu.registers.c)?utils.setZ(0):utils.setZ(1); utils.setN(0); utils.setH(0); utils.setC(0); cpu.registers.m=2;},
+    SWAPr_d: function() {var originalD=cpu.registers.d; cpu.registers.d=((originalD&0xF)<<4)|((originalD&0xF0)>>4); 
+                        (cpu.registers.d)?utils.setZ(0):utils.setZ(1); utils.setN(0); utils.setH(0); utils.setC(0); cpu.registers.m=2;},
+    SWAPr_e: function() {var originalE=cpu.registers.e; cpu.registers.e=((originalE&0xF)<<4)|((originalE&0xF0)>>4); 
+                        (cpu.registers.e)?utils.setZ(0):utils.setZ(1); utils.setN(0); utils.setH(0); utils.setC(0); cpu.registers.m=2;},
+    SWAPr_h: function() {var originalH=cpu.registers.h; cpu.registers.h=((originalH&0xF)<<4)|((originalH&0xF0)>>4); 
+                        (cpu.registers.h)?utils.setZ(0):utils.setZ(1); utils.setN(0); utils.setH(0); utils.setC(0); cpu.registers.m=2;},
+    SWAPr_l: function() {var originalL=cpu.registers.l; cpu.registers.l=((originalL&0xF)<<4)|((originalL&0xF0)>>4); 
+                        (cpu.registers.l)?utils.setZ(0):utils.setZ(1); utils.setN(0); utils.setH(0); utils.setC(0); cpu.registers.m=2;},
+    SWAPr_a: function() {var originalA=cpu.registers.a; cpu.registers.a=((originalA&0xF)<<4)|((originalA&0xF0)>>4); 
+                        (cpu.registers.a)?utils.setZ(0):utils.setZ(1); utils.setN(0); utils.setH(0); utils.setC(0); cpu.registers.m=2;},
 }
