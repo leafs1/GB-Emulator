@@ -5,9 +5,9 @@ var cpu = {
     // time clock
     clock: {m:0},
     
-    //initialize registers (a-f = 8-bit, pc and sp = 16-bit, m and t for clock)
+    //initialize registers (a-f = 8-bit, pc and sp = 16-bit, m for clock)
     registers: {
-        a:0, b:0, c:0, d:0, e:0, h:0, l:0, f:0, pc:0, sp:0, m:0
+        a:0, b:0, c:0, d:0, e:0, h:0, l:0, f:0, pc:0, sp:0, m:0, ime:0
         // Flags = Z(0x80), N(0x40), H(0x20), C(0x10)
     },    
 }
@@ -733,9 +733,6 @@ var operations = {
 
     // Flip all bits in A reg
     CPL: function() {cpu.registers.a ^= 255; utils.setN(1); utils.setH(1); cpu.registers.m=1;},
-    
-    // Sub A from 0 - May be depreciated. Not finished
-    //NEG: function() {cpu.registers.a = 0-cpu.registers.a; (cpu.registers.a)?utils.setZ(0):utils.setZ(1); utils.setN(1);},
 
     // Flips the carry flag and clears N and H flags.
     CCF: function() {(cpu.registers.f&0x10)?utils.setC(0):utils.setC(1); utils.setN(0); utils.setH(0); cpu.registers.m=1;},
@@ -743,6 +740,66 @@ var operations = {
     // Set Carry flag and reset N and H
     SCF: function() {utils.setC(1); utils.setN(0); utils.setH(0); cpu.registers.m=1;},
 
+
+    // Jump Functions ----------------------------------------------------------------------------------------------------------------
+    // nn operand is loaded to PC and the next instruction in fetched
+    JPpc: function() {cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m=3;},
+    JPHL: function() {cpu.registers.pc=(cpu.registers.h<<8)+cpu.registers.l; cpu.registers.m=3;},
+    
+    // If last operation was not zero, jump to address nn (Checks zero flag) 
+    JPNZnn: function() {cpu.registers.m=3; if(!(cpu.registers.f&0x80)){cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
+    
+    // If last operation was zero, jump to address nn (Checks zero flag) 
+    JPZnn: function() {cpu.registers.m=3; if(cpu.registers.f&0x80){cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
+    
+    // If last operation was not a carry, jump to address nn (Checks carry flag) 
+    JPNCnn: function() {cpu.registers.m=3; if(!(cpu.registers.f&0x10)){cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
+    
+    // If last operation was a carry, jump to address nn (Checks carry flag) 
+    JPCnn: function() {cpu.registers.m=3; if(cpu.registers.f&0x10){cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
+
+    // Adds signed byte to the current address, then jumps to it.
+    JRpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.pc+=nextAdd; cpu.registers.m++;},
+
+    // Adds signed byte to the current address, then jumps to it. Only if last operation was not zero
+    JRNZpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(!(cpu.registers.f&0x80)) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+
+    // Adds signed byte to the current address, then jumps to it. Only if last operation was zero
+    JRZpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x80) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+
+    // Adds signed byte to the current address, then jumps to it. Only if last operation was not a carry
+    JRNCpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(!(cpu.registers.f&0x10)) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+
+    // Adds signed byte to the current address, then jumps to it. Only if last operation was a carry
+    JRCpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x10) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+
+    // If b reg is greater than zero, add signed byte to the current address and then jump to it.
+    DJNZn: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.b--; if(cpu.registers.b){cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+
+    // Write nn to top of stack
+    CALLnn: function() {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m=5;},
+    CALLNZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x00) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+    CALLZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x80) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+    CALLNCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x00) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+    CALLCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x10) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+
+    // Info at mem address SP is put in PC
+    RET: function() {cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m=3;},
+
+
+
+    // Stack Functions----------------------------------------------------------------------------------------------------------------
+    // Push 16-bit reg to LFIO stack (last-in first-out).
+    PUSHBC: function() {cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.b); cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.c); cpu.registers.m=3;},
+    PUSHDE: function() {cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.d); cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.e); cpu.registers.m=3;},
+    PUSHHL: function() {cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.h); cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.l); cpu.registers.m=3;},
+    PUSHAF: function() {cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.a); cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.f); cpu.registers.m=3;},
+
+    // Pop 16-bit reg off of stack
+    POPBC: function() {cpu.registers.c=MMU.rb(cpu.registers.sp); cpu.registers.sp++; cpu.registers.b=MMU.rb(cpu.registers.sp); cpu.registers.m=3;},
+    POPDE: function() {cpu.registers.e=MMU.rb(cpu.registers.sp); cpu.registers.sp++; cpu.registers.d=MMU.rb(cpu.registers.sp); cpu.registers.m=3;},
+    POPHL: function() {cpu.registers.l=MMU.rb(cpu.registers.sp); cpu.registers.sp++; cpu.registers.h=MMU.rb(cpu.registers.sp); cpu.registers.m=3;},
+    POPAF: function() {cpu.registers.f=MMU.rb(cpu.registers.sp); cpu.registers.sp++; cpu.registers.a=MMU.rb(cpu.registers.sp); cpu.registers.m=3;},
 
     // Loading Functions ------------------------------------------------------------------------------------------------------------
     // LDrr, contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
