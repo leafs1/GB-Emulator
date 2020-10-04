@@ -20,7 +20,91 @@ var cpu = {
     registers: {
         a:0, b:0, c:0, d:0, e:0, h:0, l:0, f:0, pc:0, sp:0, m:0, ime:0
         // Flags = Z(0x80), N(0x40), H(0x20), C(0x10)
-    },    
+    }, 
+    
+    // Missing = 0x08, 0x3b
+    map: {
+        0x00: cpu.operations.NOP,
+        0x01: cpu.operations.LDBCnn,
+        0x02: cpu.operations.LDBCmA,
+        0x03: cpu.operations.INCBC,
+        0x04: cpu.operations.INCb,
+        0x05: cpu.operations.DECb,
+        0x06: cpu.operations.LDrn_b,
+        0x07: cpu.operations.RLCA,
+        0x09: cpu.operations.AddHLBC,
+        0x0a: cpu.operations.LDABCm,
+        0x0b: cpu.operations.DECBC,
+        0x0c: cpu.operations.INCc,
+        0x0d: cpu.operations.DECc,
+        0x0e: cpu.operations.LDrn_c,
+        0x0f: cpu.operations.RRCA,
+        0x10: cpu.operations.DJNZn,
+        0x11: cpu.operations.LDDEnn,
+        0x12: cpu.operations.LDDEmA,
+        0x13: cpu.operations.INCDE,
+        0x14: cpu.operations.INCd,
+        0x15: cpu.operations.DECd,
+        0x16: cpu.operations.LDrn_d,
+        0x17: cpu.operations.RLA,
+        0x18: cpu.operations.JRpc,
+        0x19: cpu.operations.AddHLDE,
+        0x1a: cpu.operations.LDADEm,
+        0x1b: cpu.operations.DECDE,
+        0x1c: cpu.operations.INCe,
+        0x1d: cpu.operations.DECe,
+        0x1e: cpu.operations.LDrn_e,
+        0x1f: cpu.operations.RRA,
+        0x20: cpu.operations.JRNZpc,
+        0x21: cpu.operations.LDHLnn,
+        0x22: cpu.operations.LDHLIA,
+        0x23: cpu.operations.INCHL,
+        0x24: cpu.operations.INCh,
+        0x25: cpu.operations.DECh,
+        0x26: cpu.operations.LDrn_h,
+        0x27: cpu.operations.DAA,
+        0x28: cpu.operations.JRZpc,
+        0x29: cpu.operations.AddHLHL,
+        0x2a: cpu.operations.LDAHLI,
+        0x2b: cpu.operations.DECHL,
+        0x2c: cpu.operations.INCl,
+        0x2d: cpu.operations.DECl,
+        0x2e: cpu.operations.LDrn_l,
+        0x2f: cpu.operations.CPL,
+        0x30: cpu.operations.JRNCpc,
+        0x31: cpu.operations.LDSPnn,
+        0x32: cpu.operations.LDHLDA,
+        0x33: cpu.operations.INCSP,
+        0x34: cpu.operations.INCHLm,
+        0x35: cpu.operations.DECHLm,
+        0x36: cpu.operations.LDHLmn,
+        0x37: cpu.operations.SCF,
+        0x38: cpu.operations.JRCpc,
+        0x39: cpu.operations.AddHLSP,
+        0x3a: cpu.operations.LDAHLD,
+        0x3c: cpu.operations.INCa,
+        0x3d: cpu.operations.DECa,
+        0x3e: cpu.operations.LDrn_a,
+        0x3f: cpu.operations.CCF,
+        0x40: cpu.operations.LDrrBB,
+        0x41: cpu.operations.LDrrBC,
+        0x42: cpu.operations.LDrrBD,
+        0x43: cpu.operations.LDrrBE,
+        0x44: cpu.operations.LDrrBH,
+        0x45: cpu.operations.LDrrBL,
+        0x46: cpu.operations.LDrHLm_b,
+        0x47: cpu.operations.LDrrBA,
+        0x48: cpu.operations.LDrrCB,
+        0x49: cpu.operations.LDrrCC,
+        0x4a: cpu.operations.LDrrCD,
+        0x4b: cpu.operations.LDrrCE,
+        0x4c: cpu.operations.LDrrCH,
+        0x4d: cpu.operations.LDrrCL,
+        0x4e: cpu.operations.LDrHLm_c,
+        0x4f: cpu.operations.LDrrCA
+    },
+
+    cbMap: [],
 
 
     utils = {
@@ -1033,13 +1117,11 @@ var cpu = {
             cpu.registers.pc &= 65535
             
             if (cpu.cbMap[pcAdd]) {
-                cpu.cbMap[i]()
+                cpu.cbMap[pcAdd]()
             } else {
                 console.log(pcAdd)
             }
         },
     },
 
-    map: [],
-    cbMap: [],
 }
