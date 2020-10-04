@@ -4,6 +4,11 @@ import {MMU} from './mmu'
 var cpu = {
     // time clock
     clock: {m:0},
+
+    // Used to reset registers after interrupt
+    _resetValues: {
+        a:0, b:0, c:0, d:0, e:0, h:0, l:0, f:0
+    },
     
     //initialize registers (a-f = 8-bit, pc and sp = 16-bit, m for clock)
     registers: {
@@ -778,14 +783,51 @@ var operations = {
 
     // Write nn to top of stack
     CALLnn: function() {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m=5;},
-    CALLNZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x00) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+    CALLNotZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x00) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
     CALLZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x80) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
-    CALLNCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x00) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+    CALLNotCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x00) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
     CALLCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x10) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
 
     // Info at mem address SP is put in PC
     RET: function() {cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m=3;},
 
+    // Used at end of interrupt. Resets PC. Signal IO device that interrupt is complete.
+    RETI: function() {operations.resetReg(); operations.resetValues; cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.ime=1; cpu.registers.m+=2.},
+    // If zero flag is not set
+    RETNotZ: function() {cpu.registers.m=1; if((cpu.registers.f&0x80)==0x00){cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+    // If zero flag is set
+    RETZ: function() {cpu.registers.m=1; if((cpu.registers.f&0x80)==0x80){cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+    // If carry flag is not set
+    RETNotC: function() {cpu.registers.m=1; if((cpu.registers.f&0x10)==0x00){cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+    // If carry flag is set
+    RETC: function() {cpu.registers.m=1; if((cpu.registers.f&0x10)==0x10){cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+
+    // PC contents pushed into external mem stack and contents of operand loaded to PC
+    RST00: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x00; cpu.registers.m=3;},
+    RST08: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x08; cpu.registers.m=3;},
+    RST10: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x10; cpu.registers.m=3;},
+    RST18: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x18; cpu.registers.m=3;},
+    RST20: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x20; cpu.registers.m=3;},
+    RST28: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x28; cpu.registers.m=3;},
+    RST30: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x30; cpu.registers.m=3;},
+    RST38: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x38; cpu.registers.m=3;},
+    RST40: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x40; cpu.registers.m=3;},
+    RST48: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x48; cpu.registers.m=3;},
+    RST50: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x50; cpu.registers.m=3;},
+    RST58: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x58; cpu.registers.m=3;},
+    RST60: function() {operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x60; cpu.registers.m=3;},
+
+
+    // Utils for interrupt ----------------------------------------------------------------------------------------------------------
+    // Set the reset values to the current reg values.
+    resetValues: function() {cpu._resetValues.a=cpu.registers.a;; cpu._resetValues.b=cpu.registers.b; cpu._resetValues.c=cpu.registers.c;
+                            cpu._resetValues.d=cpu.registers.d; cpu._resetValues.e=cpu.registers.e; cpu._resetValues.f=cpu.registers.f
+                            cpu._resetValues.h=cpu.registers.h; cpu._resetValues.l=cpu.registers.l;},
+    
+    // Set register values to the reset vals
+    resetReg: function() {cpu.registers.a=cpu._resetValues.a; cpu.registers.b=cpu._resetValues.b; cpu.registers.c=cpu._resetValues;
+                        cpu.registers.d=cpu._resetValues.d; cpu.registers.e=cpu._resetValues.e; cpu.registers.f=cpu._resetValues.f;
+                        cpu.registers.h=cpu._resetValues.h; cpu.registers.l=cpu._resetValues.l;},
 
 
     // Stack Functions----------------------------------------------------------------------------------------------------------------
