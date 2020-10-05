@@ -22,7 +22,7 @@ var cpu = {
         // Flags = Z(0x80), N(0x40), H(0x20), C(0x10)
     }, 
     
-    // Missing = 0x08, 0x3b
+    // Missing = 0x08
     map: {
         0x00: cpu.operations.NOP,
         0x01: cpu.operations.LDBCnn,
@@ -32,6 +32,7 @@ var cpu = {
         0x05: cpu.operations.DECb,
         0x06: cpu.operations.LDrn_b,
         0x07: cpu.operations.RLCA,
+        0x08: cpu.operations.LDmmSP,
         0x09: cpu.operations.AddHLBC,
         0x0a: cpu.operations.LDABCm,
         0x0b: cpu.operations.DECBC,
@@ -82,6 +83,7 @@ var cpu = {
         0x38: cpu.operations.JRCpc,
         0x39: cpu.operations.AddHLSP,
         0x3a: cpu.operations.LDAHLD,
+        0x3b: cpu.operations.DECSP,
         0x3c: cpu.operations.INCa,
         0x3d: cpu.operations.DECa,
         0x3e: cpu.operations.LDrn_a,
@@ -701,6 +703,7 @@ var cpu = {
         DECBC: function() {cpu.registers.c=(cpu.registers.c-1)&255; (cpu.registers.c==255)?null:cpu.registers.b=(cpu.registers.b-1)&255; cpu.registers.m=1;},
         DECDE: function() {cpu.registers.e=(cpu.registers.e-1)&255; (cpu.registers.e==255)?null:cpu.registers.d=(cpu.registers.d-1)&255; cpu.registers.m=1;},
         DECHL: function() {cpu.registers.l=(cpu.registers.l-1)&255; (cpu.registers.l==255)?null:cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=1;},
+        DECSP: function() {cpu.registers.sp=(cpu.registers.sp-1)&65535; cpu.registers.m=1;},
 
         // Bit Manupulation ------------------------------------------------------------------------------------------------------------
         // Test bit at index with register
@@ -1227,8 +1230,8 @@ var cpu = {
         // contents of mm loaded into HL
         LDHLmm: function() {var mm = MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; cpu.registers.l=MMU.rb(mm); cpu.registers.h=MMU.rb(mm+1); cpu.registers.m=5;},
 
-        // contents of HL loaded into mm
-        LDmmHL: function() {var mm = MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; MMU.ww(mm, (cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=5;},    
+        // contents of SP loaded into mm
+        LDmmSP: function() {var mm = MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; MMU.ww(mm, cpu.registers.sp); cpu.registers.m=5;},
 
         // Set A to HL and sets L and H
         LDHLIA: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.l=(cpu.registers.l+1)&255; 
