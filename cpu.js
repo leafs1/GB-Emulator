@@ -282,7 +282,14 @@ var cpu = {
         0xff: cpu.operations.RST38
     },
 
-    cbMap: [],
+    cbMap: {
+        0xcb00: cpu.operations.RLCr_b,
+        0xcb01: cpu.operations.RLCr_c,
+        0xcb02: cpu.operations.RLCr_d,
+        0xcb03: cpu.operations.RLCr_e,
+        0xcb04: cpu.operations.RLCr_h,
+        0xcb05: cpu.operations.RLCr_l,
+    },
 
 
     utils = {
@@ -892,7 +899,9 @@ var cpu = {
                         cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
         RLr_a: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag; cpu.registers.b&=255; 
                         cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
-        
+        RLHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); var C_flag=cpu.registers.f&0x10?1:0; var co=hl&0x80?0x10:0; hl=(hl<<1)+C_flag; hl&=255; 
+                        cpu.registers.f=(hl)?0:0x80; MMU.wb((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4; },
+
         // Shift register 1 bit to the left and copy contents of Carry flag to bit 0
         RLCr_b: function() {var C_flag=cpu.registers.b&0x80?1:0; var bit8=cpu.registers.b&0x80?0x10:0; cpu.registers.b=(cpu.registers.b<<1)+C_flag;
                             cpu.registers.b&=255; cpu.registers.f=(cpu.registers.b)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
@@ -908,6 +917,8 @@ var cpu = {
                             cpu.registers.l&=255; cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
         RLCr_a: function() {var C_flag=cpu.registers.a&0x80?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag;
                             cpu.registers.a&=255; cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
+        RLCHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); var C_flag=hl&0x80?1:0; var co=h&0x80?0x10:0; hl=(hl<<1)+C_flag; hl&=255; 
+                            cpu.registers.f=(hl)?0:0x80; MMU.wb((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4; },
 
         // Shift register 1 bit to the rigt and copy contents of bit 0 to carry flag and Carry flag to bit 7
         RRr_b: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.b&1?0x10:0; cpu.registers.b=(cpu.registers.b>>1)+C_flag;
@@ -924,6 +935,8 @@ var cpu = {
                             cpu.registers.l&=255; cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
         RRr_a: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.a&1?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag;
                             cpu.registers.a&=255; cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
+        RRHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); var C_flag=cpu.registers.f&0x10?0x80:0; var co=hl&1?0x10:0; hl=(hl>>1)+C_flag; 
+                            hl&=255; MMU.wb((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(hl)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4;},
 
         // Reg rotated 1 bit to the right. Bit 0 copied to Carry flag and bit 7
         RRCr_b: function(){var C_flag = (cpu.registers.b&1)?0x80:0; var bit0=(cpu.registers.b&1)?0x10:0; cpu.registers.b=(cpu.registers.b>>1)+C_flag;
@@ -940,6 +953,7 @@ var cpu = {
                             cpu.registers.l&=255; cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xFE)+bit0; cpu.registers.m=2;},
         RRCr_a: function(){var C_flag = (cpu.registers.a&1)?0x80:0; var bit0=(cpu.registers.a&1)?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag;
                             cpu.registers.a&=255; cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xFE)+bit0; cpu.registers.m=2;},
+        RRCHL: function(){var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); var C_flag=hl&1?0x80:0; var co=hl&1?0x10:0; hl=(hl>>1)+C_flag; hl&=255; MMU.wb((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(hl)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4;},
 
         // operand rotated 1 bit to left and contents of bit 8 become Carry flag. Bit 0 is the least significant bit.
         SLAr_b: function() {var bit8 = (cpu.registers.b&0x80)?0x10:0; cpu.registers.b=(cpu.registers.b<<1)&255;
