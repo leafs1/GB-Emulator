@@ -55,7 +55,7 @@ var cpu = {
     // Executes a command
     execute: function() {
         cpu.registers.r = (cpu.registers.r + 1) & 127
-        cpu.map[MMU.rb(cpu.registers.pc++)]()
+        cpu.map[MMU.readByte(cpu.registers.pc++)]()
         cpu.registers.pc &= 65535
         cpu.clock.m += cpu.registers.m
     },
@@ -169,12 +169,12 @@ var cpu = {
             if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
         },
-        AddHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a += hl; 
+        AddHL: function() {var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a += hl; 
             cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 2;}, 
         
         // Add info at PC mem address to A
-        Addn: function() {var n=MMU.rb(cpu.registers.pc); cpu.registers.a += n; 
+        Addn: function() {var n=MMU.readByte(cpu.registers.pc); cpu.registers.a += n; 
             cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 2;},
         
@@ -195,7 +195,7 @@ var cpu = {
                             if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
 
         // Add content at mem address, PC, to SP
-        ADDSPn: function() {var i=MMU.rb(cpu.registers.pc); if(i>127) i=-((~i+1)&255); cpu.registers.pc++; cpu.registers.sp+=i; cpu.registers.m=4;},
+        ADDSPn: function() {var i=MMU.readByte(cpu.registers.pc); if(i>127) i=-((~i+1)&255); cpu.registers.pc++; cpu.registers.sp+=i; cpu.registers.m=4;},
 
 
         // inputted register and C flag are added to A
@@ -253,11 +253,11 @@ var cpu = {
             cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.a & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
         },
-        ADCHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a += hl; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        ADCHL: function() {var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a += hl; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
             cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (hl & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
         },
-        ADCn: function() {var n=MMU.rb(cpu.registers.pc); cpu.registers.a += n; cpu.registers.pc++; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
+        ADCn: function() {var n=MMU.readByte(cpu.registers.pc); cpu.registers.a += n; cpu.registers.pc++; cpu.registers.a += (cpu.registers.f & 0x10)?1:0;
             cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (n & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
         },
@@ -313,9 +313,9 @@ var cpu = {
                 if(!(temp & 255)){cpu.registers.f |= 0x80};if((cpu.registers.a^cpu.registers.a^temp)&0x10 == 0x10) {cpu.registers.f|=0x20};
                 cpu.registers.m = 1;      
         },
-        CPHL: function() {var temp=cpu.registers.a; var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); temp-=hl; cpu.registers.f|=0x40; 
+        CPHL: function() {var temp=cpu.registers.a; var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); temp-=hl; cpu.registers.f|=0x40; 
                         temp&=255; if(!temp) cpu.registers.f|=0x80; if((cpu.registers.a^temp^hl)&0x10) cpu.registers.f|=0x20; cpu.registers.m=2;},
-        CPn: function() {var temp=cpu.registers.a; var n=MMU.rb(cpu.registers.pc); temp-=n; cpu.registers.pc++; cpu.registers.f|=0x40; 
+        CPn: function() {var temp=cpu.registers.a; var n=MMU.readByte(cpu.registers.pc); temp-=n; cpu.registers.pc++; cpu.registers.f|=0x40; 
                         temp&=255; if(!temp) cpu.registers.f|=0x80; if((cpu.registers.a^temp^hl)&0x10) cpu.registers.f|=0x20; cpu.registers.m=2;},
 
         // Subtract any reg from a
@@ -354,11 +354,11 @@ var cpu = {
             if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (cpu.registers.a & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
             cpu.registers.m = 1;      
         },
-        SUBHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a -= hl; cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
+        SUBHL: function() {var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a -= hl; cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
             if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (hl & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
             cpu.registers.m = 2;
         },
-        SUBn: function() {var n=MMU.rb(cpu.registers.pc); cpu.registers.a -= n; cpu.registers.pc++; cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
+        SUBn: function() {var n=MMU.readByte(cpu.registers.pc); cpu.registers.a -= n; cpu.registers.pc++; cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
             if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (n & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
             cpu.registers.m = 2;},
 
@@ -405,11 +405,11 @@ var cpu = {
             if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (cpu.registers.a & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
             cpu.registers.m = 1;
         },
-        SBCHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a -= hl; cpu.registers.a -= (cpu.registers.f & 0x10)?1:0;
+        SBCHL: function() {var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a -= hl; cpu.registers.a -= (cpu.registers.f & 0x10)?1:0;
             cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
             if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (hl & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
             cpu.registers.m = 2;},
-        SBCn: function() {var n=MMU.rb(cpu.registers.pc); cpu.registers.a -= n; cpu.registers.a -= (cpu.registers.f & 0x10)?1:0;
+        SBCn: function() {var n=MMU.readByte(cpu.registers.pc); cpu.registers.a -= n; cpu.registers.a -= (cpu.registers.f & 0x10)?1:0;
             cpu.registers.f=(cpu.registers.a < 0)?0x10:0; cpu.registers.a&=255; cpu.registers.f |= 0x40; 
             if(!(cpu.registers.a & 255)){cpu.registers.f |= 0x80};if ((((cpu.registers.a & 0xF) + (n & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20}
             cpu.registers.m = 2;},
@@ -427,8 +427,8 @@ var cpu = {
         ANDr_h: function(){cpu.registers.a &= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ANDr_l: function(){cpu.registers.a &= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ANDr_a: function(){cpu.registers.a &= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
-        ANDHL: function(){cpu.registers.a&=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
-        ANDn: function(){cpu.registers.a&=MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+        ANDHL: function(){cpu.registers.a&=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+        ANDn: function(){cpu.registers.a&=MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
 
         // OR operation on registers
         ORr_b: function(){cpu.registers.a |= cpu.registers.b; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
@@ -438,8 +438,8 @@ var cpu = {
         ORr_h: function(){cpu.registers.a |= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ORr_l: function(){cpu.registers.a |= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ORr_a: function(){cpu.registers.a |= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
-        ORHL: function(){cpu.registers.a |= MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
-        ORn: function(){cpu.registers.a |= MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+        ORHL: function(){cpu.registers.a |= MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+        ORn: function(){cpu.registers.a |= MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
 
         // XOR operation on registers
         XORr_b: function(){cpu.registers.a ^= cpu.registers.b; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
@@ -449,8 +449,8 @@ var cpu = {
         XORr_h: function(){cpu.registers.a ^= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         XORr_l: function(){cpu.registers.a ^= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         XORr_a: function(){cpu.registers.a ^= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
-        XORHL: function(){cpu.registers.a ^= MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
-        XORn: function(){cpu.registers.a ^= MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+        XORHL: function(){cpu.registers.a ^= MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
+        XORn: function(){cpu.registers.a ^= MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 2;},
 
         // Increment register
         INCb: function() {cpu.registers.b ++; cpu.registers.b&=255; cpu.registers.f=cpu.registers.b?0:0x80; cpu.registers.m=1;},
@@ -460,8 +460,8 @@ var cpu = {
         INCh: function() {cpu.registers.h ++; cpu.registers.h&=255; cpu.registers.f=cpu.registers.h?0:0x80; cpu.registers.m=1;},
         INCl: function() {cpu.registers.l ++; cpu.registers.l&=255; cpu.registers.f=cpu.registers.l?0:0x80; cpu.registers.m=1;},
         INCa: function() {cpu.registers.a ++; cpu.registers.a&=255; cpu.registers.f=cpu.registers.a?0:0x80; cpu.registers.m=1;},
-        INCHLm: function() {var incremented=MMU.rb((cpu.registers.h<<8)+cpu.registers.l);if(incremented==0xff){incremented=0;utils.setZ(1)}else{incremented++; utils.setZ(0)}; 
-                            MMU.wb((cpu.registers.h<<8)+cpu.registers.l, incremented); ((incremented&0x0f)==0)?utils.setH(1):utils.setH(0); utils.setN(0); cpu.registers.m=3;},
+        INCHLm: function() {var incremented=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l);if(incremented==0xff){incremented=0;utils.setZ(1)}else{incremented++; utils.setZ(0)}; 
+                            MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, incremented); ((incremented&0x0f)==0)?utils.setH(1):utils.setH(0); utils.setN(0); cpu.registers.m=3;},
         INCBC: function() {cpu.registers.c=(cpu.registers.c+1)&255; (cpu.registers.c)?null:cpu.registers.b=(cpu.registers.b+1)&255; cpu.registers.m=1;},
         INCDE: function() {cpu.registers.e=(cpu.registers.e+1)&255; (cpu.registers.e)?null:cpu.registers.d=(cpu.registers.d+1)&255; cpu.registers.m=1;},
         INCHL: function() {cpu.registers.l=(cpu.registers.l+1)&255; (cpu.registers.l)?null:cpu.registers.h=(cpu.registers.h+1)&255; cpu.registers.m=1;},
@@ -475,9 +475,9 @@ var cpu = {
         DECh: function() {cpu.registers.h --; cpu.registers.h&=255; cpu.registers.f=cpu.registers.h?0:0x80; cpu.registers.m=1;},
         DECl: function() {cpu.registers.l --; cpu.registers.l&=255; cpu.registers.f=cpu.registers.l?0:0x80; cpu.registers.m=1;},
         DECa: function() {cpu.registers.a --; cpu.registers.a&=255; cpu.registers.f=cpu.registers.a?0:0x80; cpu.registers.m=1;},
-        DECHLm: function() {var decremented=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); ((decremented&0x0f)==0)?utils.setH(1):utils.setH(0); utils.setN(1);  
+        DECHLm: function() {var decremented=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); ((decremented&0x0f)==0)?utils.setH(1):utils.setH(0); utils.setN(1);  
                             (decremented==0)?decremented=0xff:decremented--; if(decremented==0){utils.setZ(1)}else{utils.setZ(0)}; 
-                            MMU.wb((cpu.registers.h<<8)+cpu.registers.l, decremented);  cpu.registers.m=3;},
+                            MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, decremented);  cpu.registers.m=3;},
         DECBC: function() {cpu.registers.c=(cpu.registers.c-1)&255; (cpu.registers.c==255)?null:cpu.registers.b=(cpu.registers.b-1)&255; cpu.registers.m=1;},
         DECDE: function() {cpu.registers.e=(cpu.registers.e-1)&255; (cpu.registers.e==255)?null:cpu.registers.d=(cpu.registers.d-1)&255; cpu.registers.m=1;},
         DECHL: function() {cpu.registers.l=(cpu.registers.l-1)&255; (cpu.registers.l==255)?null:cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=1;},
@@ -492,7 +492,7 @@ var cpu = {
         BIT0h: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.h&0x01)?0:0x80; cpu.registers.m=2;},
         BIT0l: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.l&0x01)?0:0x80; cpu.registers.m=2;},
         BIT0a: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.a&0x01)?0:0x80; cpu.registers.m=2;},
-        BIT0m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.rb((cpu.registers.h<<8)+cpu.registers.l)&0x01)?0:0x80; cpu.registers.m=2;},
+        BIT0m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.readByte((cpu.registers.h<<8)+cpu.registers.l)&0x01)?0:0x80; cpu.registers.m=2;},
 
         BIT1b: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.b&0x02)?0:0x80; cpu.registers.m=2;},
         BIT1c: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.c&0x02)?0:0x80; cpu.registers.m=2;},
@@ -501,7 +501,7 @@ var cpu = {
         BIT1h: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.h&0x02)?0:0x80; cpu.registers.m=2;},
         BIT1l: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.l&0x02)?0:0x80; cpu.registers.m=2;},
         BIT1a: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.a&0x02)?0:0x80; cpu.registers.m=2;},
-        BIT1m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.rb((cpu.registers.h<<8)+cpu.registers.l)&0x02)?0:0x80; cpu.registers.m=2;},
+        BIT1m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.readByte((cpu.registers.h<<8)+cpu.registers.l)&0x02)?0:0x80; cpu.registers.m=2;},
 
         BIT2b: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.b&0x03)?0:0x80; cpu.registers.m=2;},
         BIT2c: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.c&0x03)?0:0x80; cpu.registers.m=2;},
@@ -510,7 +510,7 @@ var cpu = {
         BIT2h: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.h&0x03)?0:0x80; cpu.registers.m=2;},
         BIT2l: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.l&0x03)?0:0x80; cpu.registers.m=2;},
         BIT2a: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.a&0x03)?0:0x80; cpu.registers.m=2;},
-        BIT2m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.rb((cpu.registers.h<<8)+cpu.registers.l)&0x03)?0:0x80; cpu.registers.m=2;},
+        BIT2m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.readByte((cpu.registers.h<<8)+cpu.registers.l)&0x03)?0:0x80; cpu.registers.m=2;},
 
         BIT3b: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.b&0x04)?0:0x80; cpu.registers.m=2;},
         BIT3c: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.c&0x04)?0:0x80; cpu.registers.m=2;},
@@ -519,7 +519,7 @@ var cpu = {
         BIT3h: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.h&0x04)?0:0x80; cpu.registers.m=2;},
         BIT3l: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.l&0x04)?0:0x80; cpu.registers.m=2;},
         BIT3a: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.a&0x04)?0:0x80; cpu.registers.m=2;},
-        BIT3m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.rb((cpu.registers.h<<8)+cpu.registers.l)&0x04)?0:0x80; cpu.registers.m=2;},
+        BIT3m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.readByte((cpu.registers.h<<8)+cpu.registers.l)&0x04)?0:0x80; cpu.registers.m=2;},
 
         BIT4b: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.b&0x05)?0:0x80; cpu.registers.m=2;},
         BIT4c: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.c&0x05)?0:0x80; cpu.registers.m=2;},
@@ -528,7 +528,7 @@ var cpu = {
         BIT4h: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.h&0x05)?0:0x80; cpu.registers.m=2;},
         BIT4l: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.l&0x05)?0:0x80; cpu.registers.m=2;},
         BIT4a: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.a&0x05)?0:0x80; cpu.registers.m=2;},
-        BIT4m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.rb((cpu.registers.h<<8)+cpu.registers.l)&0x05)?0:0x80; cpu.registers.m=2;},
+        BIT4m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.readByte((cpu.registers.h<<8)+cpu.registers.l)&0x05)?0:0x80; cpu.registers.m=2;},
 
         BIT5b: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.b&0x06)?0:0x80; cpu.registers.m=2;},
         BIT5c: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.c&0x06)?0:0x80; cpu.registers.m=2;},
@@ -537,7 +537,7 @@ var cpu = {
         BIT5h: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.h&0x06)?0:0x80; cpu.registers.m=2;},
         BIT5l: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.l&0x06)?0:0x80; cpu.registers.m=2;},
         BIT5a: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.a&0x06)?0:0x80; cpu.registers.m=2;},
-        BIT5m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.rb((cpu.registers.h<<8)+cpu.registers.l)&0x06)?0:0x80; cpu.registers.m=2;},
+        BIT5m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.readByte((cpu.registers.h<<8)+cpu.registers.l)&0x06)?0:0x80; cpu.registers.m=2;},
 
         BIT6b: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.b&0x07)?0:0x80; cpu.registers.m=2;},
         BIT6c: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.c&0x07)?0:0x80; cpu.registers.m=2;},
@@ -546,7 +546,7 @@ var cpu = {
         BIT6h: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.h&0x07)?0:0x80; cpu.registers.m=2;},
         BIT6l: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.l&0x07)?0:0x80; cpu.registers.m=2;},
         BIT6a: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.a&0x07)?0:0x80; cpu.registers.m=2;},
-        BIT6m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.rb((cpu.registers.h<<8)+cpu.registers.l)&0x07)?0:0x80; cpu.registers.m=2;},
+        BIT6m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.readByte((cpu.registers.h<<8)+cpu.registers.l)&0x07)?0:0x80; cpu.registers.m=2;},
 
         BIT7b: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.b&0x08)?0:0x80; cpu.registers.m=2;},
         BIT7c: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.c&0x08)?0:0x80; cpu.registers.m=2;},
@@ -555,89 +555,89 @@ var cpu = {
         BIT7h: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.h&0x08)?0:0x80; cpu.registers.m=2;},
         BIT7l: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.l&0x08)?0:0x80; cpu.registers.m=2;},
         BIT7a: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(cpu.registers.a&0x08)?0:0x80; cpu.registers.m=2;},
-        BIT7m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.rb((cpu.registers.h<<8)+cpu.registers.l)&0x08)?0:0x80; cpu.registers.m=2;},
+        BIT7m: function() {cpu.registers.f&=0x1F; utils.setH(1); cpu.registers.f=(MMU.readByte((cpu.registers.h<<8)+cpu.registers.l)&0x08)?0:0x80; cpu.registers.m=2;},
 
         // Resets bit b in register
         RES0b: function(){cpu.registers.b &= 0xFE; cpu.registers.m = 2}, RES0c: function(){cpu.registers.c &= 0xFE; cpu.registers.m = 2},
         RES0d: function(){cpu.registers.d &= 0xFE; cpu.registers.m = 2}, RES0e: function(){cpu.registers.e &= 0xFE; cpu.registers.m = 2},
         RES0h: function(){cpu.registers.h &= 0xFE; cpu.registers.m = 2}, RES0l: function(){cpu.registers.l &= 0xFE; cpu.registers.m = 2},
-        RES0a: function(){cpu.registers.a &= 0xFE; cpu.registers.m = 2}, RES0m: function(){MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))&0xFE); cpu.registers.m=4;},
+        RES0a: function(){cpu.registers.a &= 0xFE; cpu.registers.m = 2}, RES0m: function(){MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))&0xFE); cpu.registers.m=4;},
 
         RES1b: function(){cpu.registers.b &= 0xFD; cpu.registers.m = 2}, RES1c: function(){cpu.registers.c &= 0xFD; cpu.registers.m = 2},
         RES1d: function(){cpu.registers.d &= 0xFD; cpu.registers.m = 2}, RES1e: function(){cpu.registers.e &= 0xFD; cpu.registers.m = 2},
         RES1h: function(){cpu.registers.h &= 0xFD; cpu.registers.m = 2}, RES1l: function(){cpu.registers.l &= 0xFD; cpu.registers.m = 2},
-        RES1a: function(){cpu.registers.a &= 0xFD; cpu.registers.m = 2}, RES1m: function(){MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))&0xFD); cpu.registers.m=4;},
+        RES1a: function(){cpu.registers.a &= 0xFD; cpu.registers.m = 2}, RES1m: function(){MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))&0xFD); cpu.registers.m=4;},
 
         RES2b: function(){cpu.registers.b &= 0xFB; cpu.registers.m = 2}, RES2c: function(){cpu.registers.c &= 0xFB; cpu.registers.m = 2},
         RES2d: function(){cpu.registers.d &= 0xFB; cpu.registers.m = 2}, RES2e: function(){cpu.registers.e &= 0xFB; cpu.registers.m = 2},
         RES2h: function(){cpu.registers.h &= 0xFB; cpu.registers.m = 2}, RES2l: function(){cpu.registers.l &= 0xFB; cpu.registers.m = 2},
-        RES2a: function(){cpu.registers.a &= 0xFB; cpu.registers.m = 2}, RES2m: function(){MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))&0xFB); cpu.registers.m=4;},
+        RES2a: function(){cpu.registers.a &= 0xFB; cpu.registers.m = 2}, RES2m: function(){MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))&0xFB); cpu.registers.m=4;},
 
         RES3b: function(){cpu.registers.b &= 0xF7; cpu.registers.m = 2}, RES3c: function(){cpu.registers.c &= 0xF7; cpu.registers.m = 2},
         RES3d: function(){cpu.registers.d &= 0xF7; cpu.registers.m = 2}, RES3e: function(){cpu.registers.e &= 0xF7; cpu.registers.m = 2},
         RES3h: function(){cpu.registers.h &= 0xF7; cpu.registers.m = 2}, RES3l: function(){cpu.registers.l &= 0xF7; cpu.registers.m = 2},
-        RES3a: function(){cpu.registers.a &= 0xF7; cpu.registers.m = 2}, RES3m: function(){MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))&0xF7); cpu.registers.m=4;},
+        RES3a: function(){cpu.registers.a &= 0xF7; cpu.registers.m = 2}, RES3m: function(){MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))&0xF7); cpu.registers.m=4;},
 
         RES4b: function(){cpu.registers.b &= 0xEF; cpu.registers.m = 2}, RES4c: function(){cpu.registers.c &= 0xEF; cpu.registers.m = 2},
         RES4d: function(){cpu.registers.d &= 0xEF; cpu.registers.m = 2}, RES4e: function(){cpu.registers.e &= 0xEF; cpu.registers.m = 2},
         RES4h: function(){cpu.registers.h &= 0xEF; cpu.registers.m = 2}, RES4l: function(){cpu.registers.l &= 0xEF; cpu.registers.m = 2},
-        RES4a: function(){cpu.registers.a &= 0xEF; cpu.registers.m = 2}, RES4m: function(){MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))&0xEF); cpu.registers.m=4;},
+        RES4a: function(){cpu.registers.a &= 0xEF; cpu.registers.m = 2}, RES4m: function(){MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))&0xEF); cpu.registers.m=4;},
 
         RES5b: function(){cpu.registers.b &= 0xDF; cpu.registers.m = 2}, RES5c: function(){cpu.registers.c &= 0xDF; cpu.registers.m = 2},
         RES5d: function(){cpu.registers.d &= 0xDF; cpu.registers.m = 2}, RES5e: function(){cpu.registers.e &= 0xDF; cpu.registers.m = 2},
         RES5h: function(){cpu.registers.h &= 0xDF; cpu.registers.m = 2}, RES5l: function(){cpu.registers.l &= 0xDF; cpu.registers.m = 2},
-        RES5a: function(){cpu.registers.a &= 0xDF; cpu.registers.m = 2}, RES5m: function(){MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))&0xDF); cpu.registers.m=4;},
+        RES5a: function(){cpu.registers.a &= 0xDF; cpu.registers.m = 2}, RES5m: function(){MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))&0xDF); cpu.registers.m=4;},
 
         RES6b: function(){cpu.registers.b &= 0xBF; cpu.registers.m = 2}, RES6c: function(){cpu.registers.c &= 0xBF; cpu.registers.m = 2},
         RES6d: function(){cpu.registers.d &= 0xBF; cpu.registers.m = 2}, RES6e: function(){cpu.registers.e &= 0xBF; cpu.registers.m = 2},
         RES6h: function(){cpu.registers.h &= 0xBF; cpu.registers.m = 2}, RES6l: function(){cpu.registers.l &= 0xBF; cpu.registers.m = 2},
-        RES6a: function(){cpu.registers.a &= 0xBF; cpu.registers.m = 2}, RES6m: function(){MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))&0xBF); cpu.registers.m=4;},
+        RES6a: function(){cpu.registers.a &= 0xBF; cpu.registers.m = 2}, RES6m: function(){MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))&0xBF); cpu.registers.m=4;},
 
         RES7b: function(){cpu.registers.b &= 0x7F; cpu.registers.m = 2}, RES7c: function(){cpu.registers.c &= 0x7F; cpu.registers.m = 2},
         RES7d: function(){cpu.registers.d &= 0x7F; cpu.registers.m = 2}, RES7e: function(){cpu.registers.e &= 0x7F; cpu.registers.m = 2},
         RES7h: function(){cpu.registers.h &= 0x7F; cpu.registers.m = 2}, RES7l: function(){cpu.registers.l &= 0x7F; cpu.registers.m = 2},
-        RES7a: function(){cpu.registers.a &= 0x7F; cpu.registers.m = 2}, RES7m: function(){MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))&0x7F); cpu.registers.m=4;},
+        RES7a: function(){cpu.registers.a &= 0x7F; cpu.registers.m = 2}, RES7m: function(){MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))&0x7F); cpu.registers.m=4;},
         
         // set the bit in the register
         SET0b: function() { cpu.registers.b|=0x01; cpu.registers.m=2;}, SET0c: function() { cpu.registers.c|=0x01; cpu.registers.m=2;},
         SET0d: function() { cpu.registers.d|=0x01; cpu.registers.m=2;}, SET0e: function() { cpu.registers.e|=0x01; cpu.registers.m=2;},
         SET0h: function() { cpu.registers.h|=0x01; cpu.registers.m=2;}, SET0l: function() { cpu.registers.l|=0x01; cpu.registers.m=2;},
-        SET0a: function() { cpu.registers.a|=0x01; cpu.registers.m=2;}, SET0m: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))|0x01); cpu.registers.m=4;},
+        SET0a: function() { cpu.registers.a|=0x01; cpu.registers.m=2;}, SET0m: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))|0x01); cpu.registers.m=4;},
         
         SET1b: function() { cpu.registers.b|=0x02; cpu.registers.m=2;}, SET1c: function() { cpu.registers.c|=0x02; cpu.registers.m=2;},
         SET1d: function() { cpu.registers.d|=0x02; cpu.registers.m=2;}, SET1e: function() { cpu.registers.e|=0x02; cpu.registers.m=2;},
         SET1h: function() { cpu.registers.h|=0x02; cpu.registers.m=2;}, SET1l: function() { cpu.registers.l|=0x02; cpu.registers.m=2;},
-        SET1a: function() { cpu.registers.a|=0x02; cpu.registers.m=2;}, SET1m: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))|0x02); cpu.registers.m=4;},
+        SET1a: function() { cpu.registers.a|=0x02; cpu.registers.m=2;}, SET1m: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))|0x02); cpu.registers.m=4;},
 
         SET2b: function() { cpu.registers.b|=0x04; cpu.registers.m=2;}, SET2c: function() { cpu.registers.c|=0x04; cpu.registers.m=2;},
         SET2d: function() { cpu.registers.d|=0x04; cpu.registers.m=2;}, SET2e: function() { cpu.registers.e|=0x04; cpu.registers.m=2;},
         SET2h: function() { cpu.registers.h|=0x04; cpu.registers.m=2;}, SET2l: function() { cpu.registers.l|=0x04; cpu.registers.m=2;},
-        SET2a: function() { cpu.registers.a|=0x04; cpu.registers.m=2;}, SET2m: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))|0x04); cpu.registers.m=4;},
+        SET2a: function() { cpu.registers.a|=0x04; cpu.registers.m=2;}, SET2m: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))|0x04); cpu.registers.m=4;},
 
         SET3b: function() { cpu.registers.b|=0x08; cpu.registers.m=2;}, SET3c: function() { cpu.registers.c|=0x08; cpu.registers.m=2;},
         SET3d: function() { cpu.registers.d|=0x08; cpu.registers.m=2;}, SET3e: function() { cpu.registers.e|=0x08; cpu.registers.m=2;},
         SET3h: function() { cpu.registers.h|=0x08; cpu.registers.m=2;}, SET3l: function() { cpu.registers.l|=0x08; cpu.registers.m=2;},
-        SET3a: function() { cpu.registers.a|=0x08; cpu.registers.m=2;}, SET3m: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))|0x08); cpu.registers.m=4;},
+        SET3a: function() { cpu.registers.a|=0x08; cpu.registers.m=2;}, SET3m: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))|0x08); cpu.registers.m=4;},
 
         SET4b: function() { cpu.registers.b|=0x10; cpu.registers.m=2;}, SET4c: function() { cpu.registers.c|=0x10; cpu.registers.m=2;},
         SET4d: function() { cpu.registers.d|=0x10; cpu.registers.m=2;}, SET4e: function() { cpu.registers.e|=0x10; cpu.registers.m=2;},
         SET4h: function() { cpu.registers.h|=0x10; cpu.registers.m=2;}, SET4l: function() { cpu.registers.l|=0x10; cpu.registers.m=2;},
-        SET4a: function() { cpu.registers.a|=0x10; cpu.registers.m=2;}, SET4m: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))|0x10); cpu.registers.m=4;},
+        SET4a: function() { cpu.registers.a|=0x10; cpu.registers.m=2;}, SET4m: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))|0x10); cpu.registers.m=4;},
 
         SET5b: function() { cpu.registers.b|=0x20; cpu.registers.m=2;}, SET5c: function() { cpu.registers.c|=0x20; cpu.registers.m=2;},
         SET5d: function() { cpu.registers.d|=0x20; cpu.registers.m=2;}, SET5e: function() { cpu.registers.e|=0x20; cpu.registers.m=2;},
         SET5h: function() { cpu.registers.h|=0x20; cpu.registers.m=2;}, SET5l: function() { cpu.registers.l|=0x20; cpu.registers.m=2;},
-        SET5a: function() { cpu.registers.a|=0x20; cpu.registers.m=2;}, SET5m: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))|0x20); cpu.registers.m=4;},
+        SET5a: function() { cpu.registers.a|=0x20; cpu.registers.m=2;}, SET5m: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))|0x20); cpu.registers.m=4;},
 
         SET6b: function() { cpu.registers.b|=0x40; cpu.registers.m=2;}, SET6c: function() { cpu.registers.c|=0x40; cpu.registers.m=2;},
         SET6d: function() { cpu.registers.d|=0x40; cpu.registers.m=2;}, SET6e: function() { cpu.registers.e|=0x40; cpu.registers.m=2;},
         SET6h: function() { cpu.registers.h|=0x40; cpu.registers.m=2;}, SET6l: function() { cpu.registers.l|=0x40; cpu.registers.m=2;},
-        SET6a: function() { cpu.registers.a|=0x40; cpu.registers.m=2;}, SET6m: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))|0x40); cpu.registers.m=4;},
+        SET6a: function() { cpu.registers.a|=0x40; cpu.registers.m=2;}, SET6m: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))|0x40); cpu.registers.m=4;},
 
         SET7b: function() { cpu.registers.b|=0x80; cpu.registers.m=2;}, SET7c: function() { cpu.registers.c|=0x80; cpu.registers.m=2;},
         SET7d: function() { cpu.registers.d|=0x80; cpu.registers.m=2;}, SET7e: function() { cpu.registers.e|=0x80; cpu.registers.m=2;},
         SET7h: function() { cpu.registers.h|=0x80; cpu.registers.m=2;}, SET7l: function() { cpu.registers.l|=0x80; cpu.registers.m=2;},
-        SET7a: function() { cpu.registers.a|=0x80; cpu.registers.m=2;}, SET7m: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, (MMU.rb((cpu.registers.h<<8)+cpu.registers.l))|0x80); cpu.registers.m=4;},
+        SET7a: function() { cpu.registers.a|=0x80; cpu.registers.m=2;}, SET7m: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, (MMU.readByte((cpu.registers.h<<8)+cpu.registers.l))|0x80); cpu.registers.m=4;},
     
         // Shift register 1 bit to the left and carry flag is moved to bit 1.
         RLA: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag; 
@@ -670,8 +670,8 @@ var cpu = {
                         cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
         RLr_a: function() {var C_flag=cpu.registers.f&0x10?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag; cpu.registers.b&=255; 
                         cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
-        RLHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); var C_flag=cpu.registers.f&0x10?1:0; var co=hl&0x80?0x10:0; hl=(hl<<1)+C_flag; hl&=255; 
-                        cpu.registers.f=(hl)?0:0x80; MMU.wb((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4; },
+        RLHL: function() {var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); var C_flag=cpu.registers.f&0x10?1:0; var co=hl&0x80?0x10:0; hl=(hl<<1)+C_flag; hl&=255; 
+                        cpu.registers.f=(hl)?0:0x80; MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4; },
 
         // Shift register 1 bit to the left and copy contents of Carry flag to bit 0
         RLCr_b: function() {var C_flag=cpu.registers.b&0x80?1:0; var bit8=cpu.registers.b&0x80?0x10:0; cpu.registers.b=(cpu.registers.b<<1)+C_flag;
@@ -688,8 +688,8 @@ var cpu = {
                             cpu.registers.l&=255; cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
         RLCr_a: function() {var C_flag=cpu.registers.a&0x80?1:0; var bit8=cpu.registers.a&0x80?0x10:0; cpu.registers.a=(cpu.registers.a<<1)+C_flag;
                             cpu.registers.a&=255; cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit8; cpu.registers.m=2;},
-        RLCHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); var C_flag=hl&0x80?1:0; var co=h&0x80?0x10:0; hl=(hl<<1)+C_flag; hl&=255; 
-                            cpu.registers.f=(hl)?0:0x80; MMU.wb((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4; },
+        RLCHL: function() {var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); var C_flag=hl&0x80?1:0; var co=h&0x80?0x10:0; hl=(hl<<1)+C_flag; hl&=255; 
+                            cpu.registers.f=(hl)?0:0x80; MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4; },
 
         // Shift register 1 bit to the rigt and copy contents of bit 0 to carry flag and Carry flag to bit 7
         RRr_b: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.b&1?0x10:0; cpu.registers.b=(cpu.registers.b>>1)+C_flag;
@@ -706,8 +706,8 @@ var cpu = {
                             cpu.registers.l&=255; cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
         RRr_a: function() {var C_flag=cpu.registers.f&0x10?0x80:0; var bit0=cpu.registers.a&1?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag;
                             cpu.registers.a&=255; cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+bit0; cpu.registers.m=2;},
-        RRHL: function() {var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); var C_flag=cpu.registers.f&0x10?0x80:0; var co=hl&1?0x10:0; hl=(hl>>1)+C_flag; 
-                            hl&=255; MMU.wb((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(hl)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4;},
+        RRHL: function() {var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); var C_flag=cpu.registers.f&0x10?0x80:0; var co=hl&1?0x10:0; hl=(hl>>1)+C_flag; 
+                            hl&=255; MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(hl)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4;},
 
         // Reg rotated 1 bit to the right. Bit 0 copied to Carry flag and bit 7
         RRCr_b: function(){var C_flag = (cpu.registers.b&1)?0x80:0; var bit0=(cpu.registers.b&1)?0x10:0; cpu.registers.b=(cpu.registers.b>>1)+C_flag;
@@ -724,7 +724,7 @@ var cpu = {
                             cpu.registers.l&=255; cpu.registers.f=(cpu.registers.l)?0:0x80; cpu.registers.f=(cpu.registers.f&0xFE)+bit0; cpu.registers.m=2;},
         RRCr_a: function(){var C_flag = (cpu.registers.a&1)?0x80:0; var bit0=(cpu.registers.a&1)?0x10:0; cpu.registers.a=(cpu.registers.a>>1)+C_flag;
                             cpu.registers.a&=255; cpu.registers.f=(cpu.registers.a)?0:0x80; cpu.registers.f=(cpu.registers.f&0xFE)+bit0; cpu.registers.m=2;},
-        RRCHL: function(){var hl=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); var C_flag=hl&1?0x80:0; var co=hl&1?0x10:0; hl=(hl>>1)+C_flag; hl&=255; MMU.wb((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(hl)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4;},
+        RRCHL: function(){var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); var C_flag=hl&1?0x80:0; var co=hl&1?0x10:0; hl=(hl>>1)+C_flag; hl&=255; MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l,hl); cpu.registers.f=(hl)?0:0x80; cpu.registers.f=(cpu.registers.f&0xEF)+co; cpu.registers.m=4;},
 
         // operand rotated 1 bit to left and contents of bit 8 become Carry flag. Bit 0 is the least significant bit.
         SLAr_b: function() {var bit8 = (cpu.registers.b&0x80)?0x10:0; cpu.registers.b=(cpu.registers.b<<1)&255;
@@ -802,74 +802,74 @@ var cpu = {
 
         // Jump Functions ----------------------------------------------------------------------------------------------------------------
         // nn operand is loaded to PC and the next instruction in fetched
-        JPpc: function() {cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m=3;},
+        JPpc: function() {cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m=3;},
         JPHL: function() {cpu.registers.pc=(cpu.registers.h<<8)+cpu.registers.l; cpu.registers.m=3;},
         
         // If last operation was not zero, jump to address nn (Checks zero flag) 
-        JPNZnn: function() {cpu.registers.m=3; if(!(cpu.registers.f&0x80)){cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
+        JPNZnn: function() {cpu.registers.m=3; if(!(cpu.registers.f&0x80)){cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
         
         // If last operation was zero, jump to address nn (Checks zero flag) 
-        JPZnn: function() {cpu.registers.m=3; if(cpu.registers.f&0x80){cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
+        JPZnn: function() {cpu.registers.m=3; if(cpu.registers.f&0x80){cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
         
         // If last operation was not a carry, jump to address nn (Checks carry flag) 
-        JPNCnn: function() {cpu.registers.m=3; if(!(cpu.registers.f&0x10)){cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
+        JPNCnn: function() {cpu.registers.m=3; if(!(cpu.registers.f&0x10)){cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
         
         // If last operation was a carry, jump to address nn (Checks carry flag) 
-        JPCnn: function() {cpu.registers.m=3; if(cpu.registers.f&0x10){cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
+        JPCnn: function() {cpu.registers.m=3; if(cpu.registers.f&0x10){cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m++;}else{cpu.registers.pc+=2;} }, 
 
         // Adds signed byte to the current address, then jumps to it.
-        JRpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.pc+=nextAdd; cpu.registers.m++;},
+        JRpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.pc+=nextAdd; cpu.registers.m++;},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was not zero
-        JRNZpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(!(cpu.registers.f&0x80)) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+        JRNZpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(!(cpu.registers.f&0x80)) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was zero
-        JRZpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x80) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+        JRZpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x80) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was not a carry
-        JRNCpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(!(cpu.registers.f&0x10)) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+        JRNCpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(!(cpu.registers.f&0x10)) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was a carry
-        JRCpc: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x10) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+        JRCpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x10) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
 
         // If b reg is greater than zero, add signed byte to the current address and then jump to it.
-        DJNZn: function() {var nextAdd=MMU.rb(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.b--; if(cpu.registers.b){cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+        DJNZn: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.b--; if(cpu.registers.b){cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
 
         // Write nn to top of stack
-        CALLnn: function() {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m=5;},
-        CALLNotZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x00) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
-        CALLZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x80) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
-        CALLNotCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x00) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
-        CALLCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x10) {cpu.registers.sp-=2; MMU.ww(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.rw(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+        CALLnn: function() {cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc+2); cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m=5;},
+        CALLNotZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x00) {cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+        CALLZnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x80)==0x80) {cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+        CALLNotCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x00) {cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
+        CALLCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x10) {cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
 
         // Info at mem address SP is put in PC
-        RET: function() {cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m=3;},
+        RET: function() {cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m=3;},
 
         // Used at end of interrupt. Resets PC. Signal IO device that interrupt is complete.
-        RETI: function() {cpu.operations.resetReg(); cpu.operations.resetValues; cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.ime=1; cpu.registers.m+=2.},
+        RETI: function() {cpu.operations.resetReg(); cpu.operations.resetValues; cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.ime=1; cpu.registers.m+=2.},
         // If zero flag is not set
-        RETNotZ: function() {cpu.registers.m=1; if((cpu.registers.f&0x80)==0x00){cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+        RETNotZ: function() {cpu.registers.m=1; if((cpu.registers.f&0x80)==0x00){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
         // If zero flag is set
-        RETZ: function() {cpu.registers.m=1; if((cpu.registers.f&0x80)==0x80){cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+        RETZ: function() {cpu.registers.m=1; if((cpu.registers.f&0x80)==0x80){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
         // If carry flag is not set
-        RETNotC: function() {cpu.registers.m=1; if((cpu.registers.f&0x10)==0x00){cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+        RETNotC: function() {cpu.registers.m=1; if((cpu.registers.f&0x10)==0x00){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
         // If carry flag is set
-        RETC: function() {cpu.registers.m=1; if((cpu.registers.f&0x10)==0x10){cpu.registers.pc=MMU.rw(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+        RETC: function() {cpu.registers.m=1; if((cpu.registers.f&0x10)==0x10){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
 
         // PC contents pushed into external mem stack and contents of operand loaded to PC
-        RST00: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x00; cpu.registers.m=3;},
-        RST08: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x08; cpu.registers.m=3;},
-        RST10: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x10; cpu.registers.m=3;},
-        RST18: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x18; cpu.registers.m=3;},
-        RST20: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x20; cpu.registers.m=3;},
-        RST28: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x28; cpu.registers.m=3;},
-        RST30: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x30; cpu.registers.m=3;},
-        RST38: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x38; cpu.registers.m=3;},
-        RST40: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x40; cpu.registers.m=3;},
-        RST48: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x48; cpu.registers.m=3;},
-        RST50: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x50; cpu.registers.m=3;},
-        RST58: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x58; cpu.registers.m=3;},
-        RST60: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.ww(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x60; cpu.registers.m=3;},
+        RST00: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x00; cpu.registers.m=3;},
+        RST08: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x08; cpu.registers.m=3;},
+        RST10: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x10; cpu.registers.m=3;},
+        RST18: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x18; cpu.registers.m=3;},
+        RST20: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x20; cpu.registers.m=3;},
+        RST28: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x28; cpu.registers.m=3;},
+        RST30: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x30; cpu.registers.m=3;},
+        RST38: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x38; cpu.registers.m=3;},
+        RST40: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x40; cpu.registers.m=3;},
+        RST48: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x48; cpu.registers.m=3;},
+        RST50: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x50; cpu.registers.m=3;},
+        RST58: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x58; cpu.registers.m=3;},
+        RST60: function() {cpu.operations.resetValues(); cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp, cpu.registers.pc); cpu.registers.pc=0x60; cpu.registers.m=3;},
 
         // CPU performs nothing during this machine cycle
         NOP: function() {cpu.registers.m=1;},
@@ -897,16 +897,16 @@ var cpu = {
 
         // Stack Functions----------------------------------------------------------------------------------------------------------------
         // Push 16-bit reg to LFIO stack (last-in first-out).
-        PUSHBC: function() {cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.b); cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.c); cpu.registers.m=3;},
-        PUSHDE: function() {cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.d); cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.e); cpu.registers.m=3;},
-        PUSHHL: function() {cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.h); cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.l); cpu.registers.m=3;},
-        PUSHAF: function() {cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.a); cpu.registers.sp--; MMU.wb(cpu.registers.sp, cpu.registers.f); cpu.registers.m=3;},
+        PUSHBC: function() {cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.b); cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.c); cpu.registers.m=3;},
+        PUSHDE: function() {cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.d); cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.e); cpu.registers.m=3;},
+        PUSHHL: function() {cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.h); cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.l); cpu.registers.m=3;},
+        PUSHAF: function() {cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.a); cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.f); cpu.registers.m=3;},
 
         // Pop 16-bit reg off of stack
-        POPBC: function() {cpu.registers.c=MMU.rb(cpu.registers.sp); cpu.registers.sp++; cpu.registers.b=MMU.rb(cpu.registers.sp); cpu.registers.m=3;},
-        POPDE: function() {cpu.registers.e=MMU.rb(cpu.registers.sp); cpu.registers.sp++; cpu.registers.d=MMU.rb(cpu.registers.sp); cpu.registers.m=3;},
-        POPHL: function() {cpu.registers.l=MMU.rb(cpu.registers.sp); cpu.registers.sp++; cpu.registers.h=MMU.rb(cpu.registers.sp); cpu.registers.m=3;},
-        POPAF: function() {cpu.registers.f=MMU.rb(cpu.registers.sp); cpu.registers.sp++; cpu.registers.a=MMU.rb(cpu.registers.sp); cpu.registers.m=3;},
+        POPBC: function() {cpu.registers.c=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.b=MMU.readByte(cpu.registers.sp); cpu.registers.m=3;},
+        POPDE: function() {cpu.registers.e=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.d=MMU.readByte(cpu.registers.sp); cpu.registers.m=3;},
+        POPHL: function() {cpu.registers.l=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.h=MMU.readByte(cpu.registers.sp); cpu.registers.m=3;},
+        POPAF: function() {cpu.registers.f=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.a=MMU.readByte(cpu.registers.sp); cpu.registers.m=3;},
 
         // Loading Functions ------------------------------------------------------------------------------------------------------------
         // LDrr, contents of rPrime (any register (A-L)) are loaded into r (another register (A-L))
@@ -961,92 +961,92 @@ var cpu = {
         LDrrLL: function() {cpu.registers.l = cpu.registers.l; cpu.registers.m = 1;},
 
         // 8-bit part of HL loaded into reg
-        LDrHLm_b: function() {cpu.registers.b = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
-        LDrHLm_c: function() {cpu.registers.c = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
-        LDrHLm_d: function() {cpu.registers.d = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
-        LDrHLm_e: function() {cpu.registers.e = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
-        LDrHLm_h: function() {cpu.registers.h = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
-        LDrHLm_l: function() {cpu.registers.l = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
-        LDrHLm_a: function() {cpu.registers.a = MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+        LDrHLm_b: function() {cpu.registers.b = MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+        LDrHLm_c: function() {cpu.registers.c = MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+        LDrHLm_d: function() {cpu.registers.d = MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+        LDrHLm_e: function() {cpu.registers.e = MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+        LDrHLm_h: function() {cpu.registers.h = MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+        LDrHLm_l: function() {cpu.registers.l = MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
+        LDrHLm_a: function() {cpu.registers.a = MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.m=2;},
 
         // register is loaded into HL
-        LDHLmr_b: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.b); cpu.registers.m=3;},
-        LDHLmr_c: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.c); cpu.registers.m=3;},
-        LDHLmr_d: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.d); cpu.registers.m=3;},
-        LDHLmr_e: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.e); cpu.registers.m=3;},
-        LDHLmr_h: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.h); cpu.registers.m=3;},
-        LDHLmr_l: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.l); cpu.registers.m=3;},
-        LDHLmr_a: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.m=3;},
+        LDHLmr_b: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.b); cpu.registers.m=3;},
+        LDHLmr_c: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.c); cpu.registers.m=3;},
+        LDHLmr_d: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.d); cpu.registers.m=3;},
+        LDHLmr_e: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.e); cpu.registers.m=3;},
+        LDHLmr_h: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.h); cpu.registers.m=3;},
+        LDHLmr_l: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.l); cpu.registers.m=3;},
+        LDHLmr_a: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.m=3;},
 
         // load n into register
-        LDrn_b: function() {cpu.registers.b = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
-        LDrn_c: function() {cpu.registers.c = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
-        LDrn_d: function() {cpu.registers.d = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
-        LDrn_e: function() {cpu.registers.e = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
-        LDrn_h: function() {cpu.registers.h = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
-        LDrn_l: function() {cpu.registers.l = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
-        LDrn_a: function() {cpu.registers.a = MMU.rb(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+        LDrn_b: function() {cpu.registers.b = MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+        LDrn_c: function() {cpu.registers.c = MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+        LDrn_d: function() {cpu.registers.d = MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+        LDrn_e: function() {cpu.registers.e = MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+        LDrn_h: function() {cpu.registers.h = MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+        LDrn_l: function() {cpu.registers.l = MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
+        LDrn_a: function() {cpu.registers.a = MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.m=2;},
 
         // load mem address (mn) into HL
-        LDHLmn: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, MMU.rb(cpu.registers.pc)); cpu.registers.pc++; cpu.registers.m=3;},
+        LDHLmn: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, MMU.readByte(cpu.registers.pc)); cpu.registers.pc++; cpu.registers.m=3;},
 
         // A loaded into BC or DE
-        LDBCmA: function() {MMU.wb((cpu.registers.b<<8)+cpu.registers.c, cpu.registers.a); cpu.registers.m=2;},
-        LDDEmA: function() {MMU.wb((cpu.registers.d<<8)+cpu.registers.e, cpu.registers.a); cpu.registers.m=2;},
+        LDBCmA: function() {MMU.writeByte((cpu.registers.b<<8)+cpu.registers.c, cpu.registers.a); cpu.registers.m=2;},
+        LDDEmA: function() {MMU.writeByte((cpu.registers.d<<8)+cpu.registers.e, cpu.registers.a); cpu.registers.m=2;},
 
         // Load content in BC into A
-        LDABCm: function () {cpu.registers.a = MMU.rb((cpu.registers.b << 8)+cpu.registers.c); cpu.registers.m = 2;},
+        LDABCm: function () {cpu.registers.a = MMU.readByte((cpu.registers.b << 8)+cpu.registers.c); cpu.registers.m = 2;},
 
         // Load content in DE into A
-        LDADEm: function() {cpu.registers.a = MMU.rb((cpu.registers.d << 8) + cpu.registers.e); cpu.registers.m = 2;},
+        LDADEm: function() {cpu.registers.a = MMU.readByte((cpu.registers.d << 8) + cpu.registers.e); cpu.registers.m = 2;},
 
         // Load A reg into mem address in PC
-        LDmmA: function() {MMU.wb(MMU.rw(cpu.registers.pc), cpu.registers.a); cpu.registers.pc+=2; cpu.registers.m=4},
+        LDmmA: function() {MMU.writeByte(MMU.readWord(cpu.registers.pc), cpu.registers.a); cpu.registers.pc+=2; cpu.registers.m=4},
 
         // Load content in mem address in PC into A
-        LDAmm: function() {cpu.registers.a = MMU.rb(MMU.rw(cpu.registers.pc)); cpu.registers.pc += 2; cpu.registers.m = 4;},
+        LDAmm: function() {cpu.registers.a = MMU.readByte(MMU.readWord(cpu.registers.pc)); cpu.registers.pc += 2; cpu.registers.m = 4;},
 
         // Loads 16-bit nn into BC, DE, HL or SP
-        LDBCnn: function() {cpu.registers.c = MMU.rb(cpu.registers.pc); cpu.registers.b = MMU.rb(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
-        LDDEnn: function() {cpu.registers.e = MMU.rb(cpu.registers.pc); cpu.registers.d = MMU.rb(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
-        LDHLnn: function() {cpu.registers.l = MMU.rb(cpu.registers.pc); cpu.registers.h = MMU.rb(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
-        LDSPnn: function() {cpu.registers.sp= MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; cpu.registers.m=3;},
+        LDBCnn: function() {cpu.registers.c = MMU.readByte(cpu.registers.pc); cpu.registers.b = MMU.readByte(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
+        LDDEnn: function() {cpu.registers.e = MMU.readByte(cpu.registers.pc); cpu.registers.d = MMU.readByte(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
+        LDHLnn: function() {cpu.registers.l = MMU.readByte(cpu.registers.pc); cpu.registers.h = MMU.readByte(cpu.registers.pc+1); cpu.registers.pc+=2; cpu.registers.m=3;},
+        LDSPnn: function() {cpu.registers.sp= MMU.readWord(cpu.registers.pc); cpu.registers.pc+=2; cpu.registers.m=3;},
 
         // contents of mm loaded into HL
-        LDHLmm: function() {var mm = MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; cpu.registers.l=MMU.rb(mm); cpu.registers.h=MMU.rb(mm+1); cpu.registers.m=5;},
+        LDHLmm: function() {var mm = MMU.readWord(cpu.registers.pc); cpu.registers.pc+=2; cpu.registers.l=MMU.readByte(mm); cpu.registers.h=MMU.readByte(mm+1); cpu.registers.m=5;},
 
         // contents of SP loaded into mm
-        LDmmSP: function() {var mm = MMU.rw(cpu.registers.pc); cpu.registers.pc+=2; MMU.ww(mm, cpu.registers.sp); cpu.registers.m=5;},
+        LDmmSP: function() {var mm = MMU.readWord(cpu.registers.pc); cpu.registers.pc+=2; MMU.writeWord(mm, cpu.registers.sp); cpu.registers.m=5;},
 
         // Set A to HL and sets L and H
-        LDHLIA: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.l=(cpu.registers.l+1)&255; 
+        LDHLIA: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.l=(cpu.registers.l+1)&255; 
                             if(!cpu.registers.l) cpu.registers.h=(cpu.registers.h+1)&255; cpu.registers.m=2;},
-        LDAHLI: function() {cpu.registers.a=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.l=(cpu.registers.l+1)&255; 
+        LDAHLI: function() {cpu.registers.a=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.l=(cpu.registers.l+1)&255; 
                             if(!cpu.registers.l) cpu.registers.h=(cpu.registers.h+1)&255; cpu.registers.m=2; },
 
         // Set HL to A and sets L and H
-        LDHLDA: function() {MMU.wb((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.l=(cpu.registers.l-1)&255; 
+        LDHLDA: function() {MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, cpu.registers.a); cpu.registers.l=(cpu.registers.l-1)&255; 
                             if(cpu.registers.l==255) cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=2;},
-        LDAHLD: function() {cpu.registers.a=MMU.rb((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.l=(cpu.registers.l-1)&255; 
+        LDAHLD: function() {cpu.registers.a=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.l=(cpu.registers.l-1)&255; 
                             if(cpu.registers.l==255) cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=2;},
 
         // Get value from mem address in PC appended to 0xFF00.
-        LDAIOn: function() {cpu.registers.a=MMU.rb(0xFF00+MMU.rb(cpu.registers.pc)); cpu.registers.pc++; cpu.registers.m=3;},
+        LDAIOn: function() {cpu.registers.a=MMU.readByte(0xFF00+MMU.readByte(cpu.registers.pc)); cpu.registers.pc++; cpu.registers.m=3;},
 
         // Add A to right half(lower 8 bits) of value in mem address pc.
-        LDIOnA: function() {MMU.wb(0xFF00+MMU.rb(cpu.registers.pc),cpu.registers.a); cpu.registers.pc++; cpu.registers.m=3;},
+        LDIOnA: function() {MMU.writeByte(0xFF00+MMU.readByte(cpu.registers.pc),cpu.registers.a); cpu.registers.pc++; cpu.registers.m=3;},
 
         // set A to reg C added to 0xFF00
-        LDAIOC: function() {cpu.registers.a=MMU.rb(0xFF00+cpu.registers.c); cpu.registers.m=2;},
+        LDAIOC: function() {cpu.registers.a=MMU.readByte(0xFF00+cpu.registers.c); cpu.registers.m=2;},
 
         // set mem address of reg c added to 0xFF00 to A
-        LDIOCA: function() {MMU.wb(0xFF00+cpu.registers.c,cpu.registers.a); cpu.registers.m=2;},
+        LDIOCA: function() {MMU.writeByte(0xFF00+cpu.registers.c,cpu.registers.a); cpu.registers.m=2;},
 
         // load hl into stack pointer. 
         LDSPHL: function() {cpu.registers.sp = (cpu.registers.h<<8)+cpu.registers.l; cpu.registers.m=2;},
         
         // Put SP + signed n effective address into HL
-        LDHLSPn: function() {var i=MMU.rb(cpu.registers.pc); if(i>127) i=-((~i+1)&255); cpu.registers.pc++; i+=cpu.registers.sp; 
+        LDHLSPn: function() {var i=MMU.readByte(cpu.registers.pc); if(i>127) i=-((~i+1)&255); cpu.registers.pc++; i+=cpu.registers.sp; 
                             cpu.registers.h=(i>>8)&255; cpu.registers.l=i&255; cpu.registers.m=3;},
 
         // Swaps halfs of 8-bit regs and set reg to it 
@@ -1076,7 +1076,7 @@ var cpu = {
 
         // call function in CB map
         MAPcb: function() {
-            var pcAdd = MMU.rb(cpu.registers.pc)
+            var pcAdd = MMU.readByte(cpu.registers.pc)
             cpu.registers.pc++
             cpu.registers.pc &= 65535
             
