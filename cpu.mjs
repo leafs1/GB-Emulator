@@ -1607,3 +1607,4 @@ cpu.cbMap = {
     0xcbff: cpu?.operations?.SET7a,
 }
 
+export default cpu
