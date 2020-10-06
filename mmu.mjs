@@ -1,4 +1,4 @@
-export default MMU = {
+var MMU = {
     // Read 8-bit byte from a given address
     rb: function(addr) {},
 
@@ -11,3 +11,5 @@ export default MMU = {
     // Write 16-bit word to a given address
     ww: function(addr, val) {}
 };
+
+export default MMU
