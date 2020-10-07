@@ -23,6 +23,15 @@ var MMU = {
     workingRam: [],
     zeroPageRam: [],
 
+    // Stores the type of cartridge that is currently on
+    cartridgeType: 0,
+
+    // Stores the state of the mem banks
+    state: [
+        {},
+        {rombank: 0, rambank: 0, ramon: 0, mode: 0}
+    ],
+
     // Var holding state of Interrupt Enable Register and Interrupt Flags
     interruptEnableRegister: 0,
     interruptFlag: 0,
@@ -76,10 +85,10 @@ var MMU = {
         } else if (0x4000 <= addr < 0x8000) {             // ROM Bank 1
             return MMU.rom.charCodeAt(MMU.romOffset+(addr&0x3FFF))
 
-        } else if (0x8000 <= addr < 0xa000) {             // GPU Ram
+        } else if (0x8000 <= addr < 0xa000) {             // GPU RAM
             null // Regurn GPU Ram (GPU not developed yet)
 
-        } else if (0xa000 <= addr < 0xc000) {             // External Ram
+        } else if (0xa000 <= addr < 0xc000) {             // External RAM
             return MMU.externalRam[MMU.ramOffset+(addr&0x1FFF)] 
 
         } else if (0xc000 <= addr < 0xf000) {             // Working Ram and shadow
@@ -109,7 +118,7 @@ var MMU = {
 
             } else if (0xff10 <= addr < 0xff40) {
                 return 0
-                
+
             } else if (0xff40 <= addr < 0xff80) {
                 // Read info from GPU mem addr
             }
@@ -127,12 +136,92 @@ var MMU = {
 
     // Read 16-bit word from a given address
     readWord: function(addr) {
-        
+        return (MMU.readByte(addr) + (MMU.readByte(addr + 1) << 8))
     },
 
     // Write 8-bit byte to a given address
     writeByte: function(addr, val) {
+        if (0x0000 <= addr < 0x2000) {                      // Rom Bank 0
+            // Turn on external ram
+            if (MMU.cartridgeType == 1) {
+                MMU.state[1].ramon = ((val & 0xf) == 0xa)? 1 : 0
+            }
+        
+        } else if (0x2000 <= addr < 0x4000) {
+            // ROM Bank Switch
+            if (MMU.cartridgeType == 1) {
+                MMU.state[1].rombank &= 0x60
+                
+                val &= 0x1f
+                if (!val) {
+                    val = 1
+                }
 
+                MMU.state[1].rombank |= val
+
+                MMU.romOffset = MMU.state[1].rombank * 0x4000
+            }
+        
+        } else if (0x4000 <= addr < 0x6000) {                   // Rom Bank 1
+            // RAM Bank Switch
+            if (MMU.cartridgeType == 1) {
+                if (MMU.state[1].mode) {
+                    MMU.state[1].rambank = (val & 3)
+                    MMU.ramOffset = MMU.state[1].rambank * 0x2000
+                } else {
+                    MMU.state[1].rombank &= 0x1f
+                    MMU.state[1].rombank = ((val&3)<<5)
+                    MMU.romOffset = MMU.state[1].rombank * 0x4000
+                }
+            }
+        
+        } else if (0x6000 <= addr < 0x8000) {                   // Rest of ROM Bank 1
+            if (MMU.cartridgeType == 1) {
+                MMU.state[1].mode = val
+            }
+        
+        } else if (0x8000 <= addr < 0xa000) {                   // GPU RAM
+            // Set GPU RAM
+        
+        } else if (0xa000 <= addr < 0xc000) {                   // External RAM
+            MMU.externalRam[MMU.ramOffset + (addr & 0x1fff)] = val
+        
+        } else if (0xc000 <= addr < 0xf000) {                   // Working RAM and Shadow
+            MMU.workingRam[addr & 0x1fff] = val
+        
+
+
+        } else if (0xf000 <= addr < 0xfe00) {             // More Working Ram info, Sprite Info, I/O, Zero-Page Ram, Interrupt Enable Reg
+            return MMU.workingRam[addr & 0x1FFF] = val
+        
+        } else if (0xfe00 <= addr < 0xff00) {             // Sprites
+            if ((addr & 0xFF) < 0xA0) {
+                // set/update sprites in GPU
+            } 
+        
+        } else if (0xff00 <= addr < 0xff7f) {             // I/O
+            if (0xff00 <= addr < 0xff10) {
+                if (addr == 0xff00) {
+                    // JOYP
+                } else if (0xff04 <= addr < 0xff08) {
+                    // Timer
+                } else if (0xff0f <= addr < 0xff10) {     // Interrup Flags
+                    MMU.interruptFlag = val
+                } 
+
+            } else if (0xff10 <= addr < 0xff40) {
+                return 0
+
+            } else if (0xff40 <= addr < 0xff80) {
+                // Read info from GPU mem addr
+            }
+        
+        } else if (0xff80 <= addr < 0xfffe) {             // Zero-Page Ram
+            MMU.zeroPageRam[addr&0x7f] = val
+        
+        } else if (addr == 0xffff) {                      // Interrupt Enable Register
+            MMU.interruptEnableRegister = val
+        }
     },
 
     // Write 16-bit word to a given address
