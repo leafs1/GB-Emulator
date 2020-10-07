@@ -226,7 +226,8 @@ var MMU = {
 
     // Write 16-bit word to a given address
     writeWord: function(addr, val) {
-
+        MMU.writeByte(addr, val & 255)
+        MMU.writeByte(addr + 1, val >> 8)
     }
 };
 
