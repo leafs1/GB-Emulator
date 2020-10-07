@@ -18,9 +18,14 @@ var MMU = {
     // Var containing GB ROM
     rom: '',
 
-    // List containing external ram
+    // List containing external, working and zero-page ram
     externalRam: [],
     workingRam: [],
+    zeroPageRam: [],
+
+    // Var holding state of Interrupt Enable Register and Interrupt Flags
+    interruptEnableRegister: 0,
+    interruptFlag: 0,
 
     // Handles rom switching
     romOffset: 0x4000,
@@ -82,7 +87,41 @@ var MMU = {
             
         } else if (0xf000 <= addr < 0xfe00) {             // More Working Ram info, Sprite Info, I/O, Zero-Page Ram, Interrupt Enable Reg
             return MMU.workingRam[addr&0x1FFF]
-        }
+        
+        } else if (0xfe00 <= addr < 0xff00) {             // Sprites
+            if ((addr & 0xFF) < 0xA0) {
+                // Load sprites from gpu
+            } else {
+                return 0
+            }
+        
+        } else if (0xff00 <= addr < 0xff7f) {             // I/O
+            if (0xff00 <= addr < 0xff10) {
+                if (addr == 0xff00) {
+                    // JOYP
+                } else if (0xff04 <= addr < 0xff08) {
+                    // Timer
+                } else if (0xff0f <= addr < 0xff10) {     // Interrup Flags
+                    return MMU.interruptFlag
+                } else {
+                    return 0
+                }
+
+            } else if (0xff10 <= addr < 0xff40) {
+                return 0
+                
+            } else if (0xff40 <= addr < 0xff80) {
+                // Read info from GPU mem addr
+            }
+
+            
+        
+        } else if (0xff80 <= addr < 0xfffe) {             // Zero-Page Ram
+            return MMU.zeroPageRam[addr&0x7f]
+        
+        } else if (addr == 0xffff) {                      // Interrupt Enable Register
+            return MMU.interruptEnableRegister
+        } 
         
     },
 
