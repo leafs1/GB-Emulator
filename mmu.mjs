@@ -15,8 +15,18 @@ var MMU = {
         // Zero-Page Ram (FF80 - FFFE)
         // Interrupt Enable Register (FFFF)
 
-    // Var containing game ROM
+    // Var containing GB ROM
     rom: '',
+
+    // List containing external ram
+    externalRam: [],
+    workingRam: [],
+
+    // Handles rom switching
+    romOffset: 0x4000,
+
+    // Handles ram switching
+    ramOffset: 0,
 
     // Var keeping track of whether the system is in the bios or not
     inBios: 1,
@@ -43,24 +53,37 @@ var MMU = {
         
     // Read 8-bit byte from a given address
     readByte: function(addr) {
-        switch(addr & 0xF000) {
-            // ROM bank 0 (0000-3FFF)
-            case 0x0000:
-                // BIOS
-                if (MMU.inBios) {
-                    if (addr < 256) {
-                        return MMU.bios[addr]
-                    } else if (cpu.register.pc == 0x0100) {
-                        MMU.inBios = 0
-                    }
-                } else {
-                    return MMU.rom.charCodeAt(addr)
+        if (0x0000 <= addr < 0x1000) {         // ROM bank 0 (0000-3FFF)
+            // BIOS
+            if (MMU.inBios) {
+                if (addr < 256) {
+                    return MMU.bios[addr]
+                } else if (cpu.register.pc == 0x0100) {
+                    MMU.inBios = 0
                 }
-            
+            } else {
+                return MMU.rom.charCodeAt(addr)
+            }
 
-                
+        } else if (0x1000 <= addr < 0x4000) {             // Rest of ROM Bank 0
+            return MMU.rom.charCodeAt(addr)
+
+        } else if (0x4000 <= addr < 0x8000) {             // ROM Bank 1
+            return MMU.rom.charCodeAt(MMU.romOffset+(addr&0x3FFF))
+
+        } else if (0x8000 <= addr < 0xa000) {             // GPU Ram
+            null // Regurn GPU Ram (GPU not developed yet)
+
+        } else if (0xa000 <= addr < 0xc000) {             // External Ram
+            return MMU.externalRam[MMU.ramOffset+(addr&0x1FFF)] 
+
+        } else if (0xc000 <= addr < 0xf000) {             // Working Ram and shadow
+            return MMU.workingRam[addr&0x1FFF]
             
+        } else if (0xf000 <= addr < 0xfe00) {             // More Working Ram info, Sprite Info, I/O, Zero-Page Ram, Interrupt Enable Reg
+            return MMU.workingRam[addr&0x1FFF]
         }
+        
     },
 
     // Read 16-bit word from a given address

@@ -49,3 +49,6 @@ console.log(obj.a)
 var a = 5
 console.log( parseInt(a.toString(16))&255)
 console.log(256 & 0xF000)
+
+console.log(0x6030)
+console.log(0x4000+(0x6030&0x3FFF))
