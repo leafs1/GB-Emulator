@@ -1,4 +1,6 @@
 import cpu from './cpu.mjs'
+import GPU from './gpu.mjs'
+import JOYPAD from './joypad.mjs'
 
 var MMU = {
     // Memmory (0x0000 - 0xFFFF)
@@ -86,7 +88,7 @@ var MMU = {
             return MMU.rom.charCodeAt(MMU.romOffset+(addr&0x3FFF))
 
         } else if (0x8000 <= addr < 0xa000) {             // GPU RAM
-            null // Regurn GPU Ram (GPU not developed yet)
+            return GPU.vram[addr & 0x1fff]
 
         } else if (0xa000 <= addr < 0xc000) {             // External RAM
             return MMU.externalRam[MMU.ramOffset+(addr&0x1FFF)] 
@@ -99,7 +101,7 @@ var MMU = {
         
         } else if (0xfe00 <= addr < 0xff00) {             // Sprites
             if ((addr & 0xFF) < 0xA0) {
-                // Load sprites from gpu
+                GPU.spriteRam[addr & 0xff]
             } else {
                 return 0
             }
@@ -107,7 +109,7 @@ var MMU = {
         } else if (0xff00 <= addr < 0xff7f) {             // I/O
             if (0xff00 <= addr < 0xff10) {
                 if (addr == 0xff00) {
-                    // JOYP
+                    return JOYPAD.rb()// JOYP
                 } else if (0xff04 <= addr < 0xff08) {
                     // Timer
                 } else if (0xff0f <= addr < 0xff10) {     // Interrup Flags
@@ -120,7 +122,7 @@ var MMU = {
                 return 0
 
             } else if (0xff40 <= addr < 0xff80) {
-                // Read info from GPU mem addr
+                GPU.rb(addr)
             }
 
             

@@ -19,6 +19,9 @@ var GPU = {
 
     reg: [],
 
+    vram: [],
+    spriteRam: [],
+
     // Update screen tiles
     updateTile: function(addr, val) {
 
@@ -55,3 +58,5 @@ var GPU = {
 
     }
 }
+
+export default GPU
