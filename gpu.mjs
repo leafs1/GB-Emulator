@@ -1,3 +1,6 @@
+import cpu from './cpu.mjs'
+import MMU from './mmu.mjs'
+
 var GPU = {
     // Initialize values
     lcdon: 0,
@@ -132,6 +135,110 @@ var GPU = {
         GPU.wintilebase = 0x1800
 
         console.log("GPU reset")
+    },
+
+    checkline: function() {
+        GPU.modeclocks += cpu.registers.m
+
+        // Hblank
+        if (GPU.linemode == 0) {
+            if (GPU.modeclocks >= 51) {
+
+                // End of hblank for last scanline and then render screen
+                if (GPU.curline == 143) {
+                    GPU.linemode = 1
+                    GPU.canvas.putImageData(GPU.scrn, 0, 0)
+                    MMU.if |= 1
+                } else {
+                    GPU.linemode = 2
+                }
+
+                GPU.curline ++
+                GPU.curscan += 640
+                GPU.modeclocks = 0
+            }
+
+            // vblank section
+        } else if (GPU.linemode == 1) {
+            if (GPU.modeclocks >= 114) {
+                GPU.modeclocks = 0
+                GPU.curline ++
+
+                if (GPU.curline > 153) {
+                    GPU.curline = 0
+                    GPU.curscan = 0
+                    GPU.linemode = 2
+                }
+            }
+        
+            // Sprite load section
+        } else if (GPU.linemode == 2) {
+            if (GPU.modeclocks >= 20) {
+                GPU.modeclocks = 0
+                GPU.linemode = 3
+            }
+        
+            // VRAM load section
+        } else if (GPU.linemode == 3) {
+            // Render scanline at end of waiting time
+            if (GPU.modeclocks >= 43) {
+                GPU.modeclocks = 0
+                GPU.linemode = 0
+                if (GPU.lcdon) {
+                    if (GPU.bgon) {
+                        var linebase = GPU.curscan
+                        var mapbase = GPU.bgmapbase + ((((GPU.curline + GPU.yscrl)&255)>>3)<<5)
+                        var y = (GPU.curline + GPU.yscrl) & 7
+                        var x = GPU.xscrl & 7
+                        var t = (GPU.xscrl >> 3) & 31
+                        var pixel
+                        var w = 160
+
+                        if (GPU.bgtilebase) {
+                            var tile = GPU.vram[mapbase + t]
+
+                            if (tile < 128) {
+                                tile = 256 + tile
+                            }
+
+                            var tilerow = GPU.tilemap[tile][y]
+
+                            do {
+                                GPU.scanrow[160-x] = tilerow[x]
+                                GPU.scrn.data[linebase + 3] = GPU.palette,bg[tilerow[x]]
+                                x++
+
+                                if (x == 8) {
+                                    t = (t+1) & 31
+                                    x = 0
+                                    tile = GPU.vram[mapbase+t]                                    
+                                    if (tile < 128) {
+                                        tile = 256 + tile
+                                    }
+                                    tilerow = GPU.tilemap[tile][y]
+                                }
+                                linebase += 4
+                            } while (--w)
+                        } else {
+                            var tilerow = GPU.tilemap[GPU.vram[mapbase + t]][y]
+                            do {
+                                GPU.scanrow[160-x] = tilerow[x]
+                                GPU.scrn.data[linebase+3] = GPU.palette.bg[tilerow[x]]
+                                x++
+                                if (x == 8) {
+                                    t = (t+1) & 31
+                                    x = 0
+                                    tilerow = GPU.tilemap[GPU.vram[mapbase+t]][y]
+                                }
+                                linebase += 4
+                            } while (--w)
+                        } 
+                    }
+
+                    
+                }
+            }
+        }
     },
 
     // read 8-bit byte
