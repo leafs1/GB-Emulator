@@ -1,6 +1,7 @@
 import cpu from './cpu.mjs'
 import GPU from './gpu.mjs'
 import JOYPAD from './joypad.mjs'
+import TIMER from './timer.mjs';
 
 var MMU = {
     // Memmory (0x0000 - 0xFFFF)
@@ -66,6 +67,46 @@ var MMU = {
         0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
         0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
     ],
+
+    // Reset values
+    reset: function() {
+        for (i = 0; i < 8192; i++) {
+            MMU.workingRam[i] = 0
+        }
+
+        for (i = 0; i < 32768; i++) {
+            MMU.externalRam[i] = 0
+        }
+
+        for (i = 0; i < 8192; i++) {
+            MMU.zeroPageRam[i] = 0
+        }
+
+        MMU.inBios = 1
+        MMU.interruptEnableRegister = 0
+        MMU.interruptFlag = 0
+        MMU.cartridgeType = 0
+        MMU.state[0] = {}
+        MMU.state[1] = {
+            rombank: 0,
+            rambank: 0,
+            ramon: 0,
+            mode: 0
+        }
+        MMU.romOffset = 0x4000
+        MMU.ramOffset = 0
+    },    
+
+    // Load in a ROM
+    load: function(file) {
+        var fileReader = new FileReader()
+        console.log("before Loaded (look for after)")
+        MMU.rom = fileReader.readAsBinaryString(file)
+        console.log("after loaded")
+        console.log("before cartridge type")
+        MMU.cartridgeType = MMU.rom.charCodeAt(0x1047)
+        console.log("after cartridge type")
+    },
         
     // Read 8-bit byte from a given address
     readByte: function(addr) {
@@ -109,9 +150,9 @@ var MMU = {
         } else if (0xff00 <= addr < 0xff7f) {             // I/O
             if (0xff00 <= addr < 0xff10) {
                 if (addr == 0xff00) {
-                    return JOYPAD.rb()// JOYP
+                    return JOYPAD.rb()                    // Joypad
                 } else if (0xff04 <= addr < 0xff08) {
-                    // Timer
+                    return TIMER.rb(addr)                 // Timer
                 } else if (0xff0f <= addr < 0xff10) {     // Interrup Flags
                     return MMU.interruptFlag
                 } else {
