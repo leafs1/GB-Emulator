@@ -1,12 +1,4 @@
   
-/**
- * BinFileReader.js
- * You can find more about this function at
- * http://nagoon97.com/reading-binary-files-using-ajax/
- *
- * Copyright (c) 2008 Andy G.P. Na <nagoon97@naver.com>
- * The source code is freely distributable under the terms of an MIT-style license.
- */
 function BinFileReader(fileURL){
 	var _exception = {};
 	_exception.FileLoadFailed = 1;

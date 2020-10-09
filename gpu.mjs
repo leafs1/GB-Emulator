@@ -1,23 +1,37 @@
 var GPU = {
+    // Initialize values
     lcdon: 0,
     
     bgtilebase: 0x0000,
     bgmapbase: 0x1800,
-    
+    wintilebase: 0x1800,
+
     objsize: 0,
     objon: 0,
     
     bgon: 0,
 
+    winon: 0,
+
     yscrl: 0,
     xscrl: 0,
 
     curline: 0,
+    curscan: 0,
     linemode: 0,
 
     raster: 0,
 
+    modeclocks: 0,
+
+    ints: 0,
+
     reg: [],
+    scanrow: [],
+    tilemap: [],
+    objdata: [],
+
+    palette: {'bg': [], 'obj0': [], 'obj1': []},
 
     vram: [],
     spriteRam: [],
@@ -30,6 +44,94 @@ var GPU = {
     // Update Sprites on screen
     updateOAM: function(addr, val) {
 
+    },
+
+    // Reset GPU / Create canvas
+    reset: function() {
+        // reset vals
+        for (var i = 0; i < 8192; i++) {
+            GPU.vram[i] = 0
+        }
+
+        for (i = 0; i < 160; i++) {
+            GPU.spriteRam[i] = 0
+        }
+
+        for (i = 0; i < 4; i++) {
+            GPU.palette.bg[i] = 255
+            GPU.palette.obj0[i] = 255
+            GPU.palette.obj1[i] = 255
+        }
+
+        for (i = 0; i < 512; i++) {
+            GPU.tilemap[i] = []
+
+            for (j = 0; j < 8; j++) {
+                GPU.tilemap[i][j] = []
+
+                for (k = 0; k < 8; k++) {
+                    GPU.tilemap[i][j][k] = 0
+                }
+            }
+        }
+
+        console.log("starting screen")
+
+        // Initialize canvas
+        canvas = document.getElementById('screen')
+        if (canvas && canvas.getContext) {
+            GPU.canvas = canvas.getContext('2d')
+
+            if (!GPU.canvas) {
+                console.log("Canvas not created")
+            } else {
+                if (GPU.canvas.createImageData) {
+                    GPU.scrn = GPU.canvas.createImageData(160, 144)
+                } else if (GPU.canvas.getImageData) {
+                    GPU.scrn = GPU.canvas.getImageData(0, 0, 160, 144)
+                } else {
+                    GPU.scrn = {
+                        'width': 160, 
+                        'height': 144, 
+                        'data': new Array(160*144*4)
+                    }
+                }
+
+                // Set canvas to white
+                for (var i = 0; i < 160*144*4; i++) {
+                    GPU.scrn.data[i] = 255
+                }
+                GPU.canvas.putImageData(GPU.scrn, 0, 0)
+            }
+        }
+
+        GPU.curline = 0
+        GPU.curscan = 0
+        GPU.linemode = 0
+        GPU.modeclocks = 0
+        GPU.yscrl = 0
+        GPU.xscrl = 0
+        GPU.raster = 0
+        GPU.ints = 0
+        GPU.lcdon = 0
+        GPU.bgon = 0
+        GPU.objon = 0
+        GPU.winon = 0
+        GPU.objsize = 0
+
+        for (i = 0; i < 160; i++) {
+            GPU.scanrow[i] = 0
+        }
+
+        for (i = 0; i < 40; i++) {
+            GPU.objdata[i] = {'y':-16, 'x':8, 'tile':0, 'palette':0, 'yflip':0, 'xflip':0, 'prio':0, 'num':i}
+        }
+
+        GPU.bgtilebase = 0x0000
+        GPU.bgmapbase = 0x1800
+        GPU.wintilebase = 0x1800
+
+        console.log("GPU reset")
     },
 
     // read 8-bit byte
