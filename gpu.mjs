@@ -304,7 +304,7 @@ var GPU = {
     },
 
     // read 8-bit byte
-    readByte: function(addr, val) {
+    readByte: function(addr) {
         var gaddr = addr - 0xef40
 
         if (gaddr == 0) {
@@ -326,7 +326,82 @@ var GPU = {
 
     // write 8-bit byte
     writeByte: function(addr, val) {
+        var gaddr = addr - 0xff40
+        GPU.reg[gaddr] = val
 
+        if (gaddr == 0) {
+            GPU.lcdon = (val & 0x80)? 1:0
+            GPU.bgtilebase = (val & 0x10)? 0x0000:0x0800
+            GPU.bgmapbase = (val & 0x08)? 0x1c00:0x1800
+            GPU.objsize = (val & 0x04)? 1:0
+            GPU.objon = (val & 0x02)? 1:0
+            GPU.bgon = (val & 0x01)? 1:0
+        } else if (gaddr == 2) {
+            GPU.yscrl = val
+        } else if (gaddr == 3) {
+            GPU.xscrl = val
+        } else if (gaddr == 5) {
+            GPU.raster = val
+        } else if (gaddr == 6) {                // sprite ram
+            var v
+
+            for (var i=0; i<160; i++) {
+                v = MMU.readByte((val<<8)+i)
+                GPU.spriteRam[i] = v
+                GPU.updateOAM(0xfe00+i, v)
+            }
+        } else if (gaddr == 7) {                // Colour palette mapping
+            for (var i=0; i<4; i++) {
+                switch((val>>(i*2))&3) {
+                    case 0:
+                        GPU.palette.bg[i] = 255
+                        break;
+                    case 1:
+                        GPU.palette.bg[i] = 192
+                        break;
+                    case 2:
+                        GPU.palette.bg[i] = 96
+                        break;
+                    case 3:
+                        GPU.palette.bg[i] = 0
+                        break;
+                }
+            }
+        } else if (gaddr == 8) {                // map obj0 to colours
+            for (var i=0; i<4; i++) {
+                switch((val>>(i*2))&3) {
+                    case 0:
+                        GPU.palette.obj0[i] = 255
+                        break;
+                    case 1:
+                        GPU.palette.obj0[i] = 192
+                        break;
+                    case 2:
+                        GPU.palette.obj0[i] = 96
+                        break;
+                    case 3:
+                        GPU.palette.obj0[i] = 0
+                        break;
+                }
+            }
+        } else if (gaddr == 9) {                // map obj1 to colours
+            for (var i=0; i<4; i++) {
+                switch((val>>(i*2))&3) {
+                    case 0:
+                        GPU.palette.obj1[i] = 255
+                        break;
+                    case 1:
+                        GPU.palette.obj1[i] = 192
+                        break;
+                    case 2:
+                        GPU.palette.obj1[i] = 96
+                        break;
+                    case 3:
+                        GPU.palette.obj1[i] = 0
+                        break;
+                }
+            }
+        }
     }
 }
 
