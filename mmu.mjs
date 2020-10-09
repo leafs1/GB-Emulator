@@ -2,6 +2,7 @@ import cpu from './cpu.mjs'
 import GPU from './gpu.mjs'
 import JOYPAD from './joypad.mjs'
 import TIMER from './timer.mjs';
+import BinFileReader from './fileReader.mjs'
 
 var MMU = {
     // Memmory (0x0000 - 0xFFFF)
@@ -99,9 +100,9 @@ var MMU = {
 
     // Load in a ROM
     load: function(file) {
-        var fileReader = new FileReader()
+        var fileReader = new BinFileReader(file)
         console.log("before Loaded (look for after)")
-        MMU.rom = fileReader.readAsBinaryString(file)
+        MMU.rom = fileReader.readString(fileReader.getFileSize(), 0)
         console.log("after loaded")
         console.log("before cartridge type")
         MMU.cartridgeType = MMU.rom.charCodeAt(0x1047)
