@@ -235,9 +235,71 @@ var GPU = {
                         } 
                     }
 
-                    
+                    if (GPU.objon) {
+                        var cnt = 0
+                        if (GPU.objsize) {
+                            for (var i=0; i<40; i++) {}
+                        } else {
+                            var tilerow
+                            var obj
+                            var pal
+                            var pixel
+                            var x
+                            var linebase = GPU.curscan
+
+                            for (var i=0; i<40; i++) {
+                                obj = GPU.objdatasorted[i]
+                                if (obj.y <= GPU.curscan && (obj.y + 8) > GPU.curline) {
+                                    if (obj.yflip) {
+                                        tilerow = GPU.tilemap[obj.tile][7-(GPU.curline-obj.y)]
+                                    } else {
+                                        tilerow = GPU.tilemap[obj.tile][GPU.curline-obj.y]
+                                    }
+
+                                    if (obj.palette) {
+                                        pal = GPU.palette.obj1
+                                    } else {
+                                        pal = GPU.pal.obj0
+                                    }
+
+                                    linebase = (GPU.curline * 160 + obj.x) * 4
+
+                                    if (obj.xflip) {
+                                        for (x = 0; x < 8; x++) {
+                                            if (obj.x + x >= 0 && obj.x + x < 160) {
+                                                if (tilerow[7-x] && (obj.prio || !GPU.scanrow[x])) {
+                                                    GPU.scrn.data[linebase+3] = pal[tilerow[7-x]]
+                                                }
+                                            }
+
+                                            linebase += 4
+                                        }
+                                    }
+
+                                    else {
+                                        for (x=0; x<8; x++) {
+                                            if (obj.x + x >= 0 && obj.x + x < 160) {
+                                                if (tilerow[x] && (obj.prio || !GPU.scanrow[x])) {
+                                                    GPU.scrn.data[linebase+3] = pal[tilerow[x]]
+                                                }
+                                            }
+
+                                            linebase += 4
+                                        }
+                                    }
+
+                                    cnt ++
+                                    if (cnt > 10) {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
+
+            break;
         }
     },
 
