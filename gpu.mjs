@@ -41,12 +41,57 @@ var GPU = {
 
     // Update screen tiles
     updateTile: function(addr, val) {
-
+        var saddr = addr
+        if (addr & 1) {
+            saddr --
+            addr --
+        }
+        var tile = (addr >> 4)&511
+        var y = (addr >> 1) & 7
+        var sx
+        for (var x=0; x < 8; x++) {
+            sx = 1<<(7-x)
+            GPU.tilemap[tile][y][x] = ((GPU.vram[saddr]&sx)?1:0) | ((GPU.vram[saddr+1]&sx)?2:0)
+        }
     },
 
     // Update Sprites on screen
     updateOAM: function(addr, val) {
+        addr -= 0xfe00
+        var obj = addr >> 2
+        if (obj < 40) {
+            switch(addr & 3) {
+                case 0:
+                    GPU.objdata[obj].y = val-16
+                    break;
+                case 1:
+                    GPU.objdata[obj].x = val-8
+                    break;
+                case 2:
+                    if (GPU.objsize) {
+                        GPU.objdata[obj].tile = (val & 0xfe)
+                    } else {
+                        GPU.objdata[obj].tile = val
+                    }
+                    break;
+                case 3:
+                    GPU.objdata[obj].palette = (val & 0x10)?1:0
+                    GPU.objdata[obj].xflip = (val & 0x20)?1:0
+                    GPU.objdata[obj].yflip = (val & 0x40)?1:0
+                    GPU.objdata[obj].prio = (val & 0x80)?1:0
+                    break;
+            }
+        }
 
+        GPU.objdatasorted = GPU.objdata
+        GPU.objdatasorted.sort(function(a,b) {
+            if (a.x > b.x) {
+                return -1
+            }
+            if (a.num > b.num) {
+                return -1
+            }
+        });
     },
 
     // Reset GPU / Create canvas
