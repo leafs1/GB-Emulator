@@ -115,68 +115,85 @@ var MMU = {
         
     // Read 8-bit byte from a given address
     readByte: function(addr) {
-        if (0x0000 <= addr < 0x1000) {         // ROM bank 0 (0000-3FFF)
+        //console.log(`addr = ${addr}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
+
+        if (0x0000 <= addr && addr < 0x1000) {         // ROM bank 0 (0000-3FFF)
+            console.log(`inner address = ${addr}`)
             // BIOS
             if (MMU.inBios) {
                 if (addr < 256) {
                     return MMU.bios[addr]
-                } else if (cpu.register.pc == 0x0100) {
+                } else if (cpu.registers.pc == 0x0100) {
                     MMU.inBios = 0
                 }
             } else {
+                console.log("else")
+                console.log(MMU.rom.charCodeAt(addr))
                 return MMU.rom.charCodeAt(addr)
             }
 
-        } else if (0x1000 <= addr < 0x4000) {             // Rest of ROM Bank 0
+        } if (0x1000 <= addr && addr < 0x4000) {             // Rest of ROM Bank 0
+            //console.log(`idk = ${MMU.rom.charCodeAt(addr)}`)
             return MMU.rom.charCodeAt(addr)
 
-        } else if (0x4000 <= addr < 0x8000) {             // ROM Bank 1
+        } if (0x4000 <= addr && addr < 0x8000) {             // ROM Bank 1
+            //console.log("rom1")
             return MMU.rom.charCodeAt(MMU.romOffset+(addr&0x3FFF))
 
-        } else if (0x8000 <= addr < 0xa000) {             // GPU RAM
+        } if (0x8000 <= addr && addr < 0xa000) {             // GPU RAM
+            //console.log("gpu")
             return GPU.vram[addr & 0x1fff]
 
-        } else if (0xa000 <= addr < 0xc000) {             // External RAM
+        } if (0xa000 <= addr && addr < 0xc000) {             // External RAM
+            //console.log("ext ram")
             return MMU.externalRam[MMU.ramOffset+(addr&0x1FFF)] 
 
-        } else if (0xc000 <= addr < 0xf000) {             // Working Ram and shadow
+        } if (0xc000 <= addr && addr < 0xf000) {             // Working Ram and shadow
+            //console.log("wram")
             return MMU.workingRam[addr&0x1FFF]
             
-        } else if (0xf000 <= addr < 0xfe00) {             // More Working Ram info, Sprite Info, I/O, Zero-Page Ram, Interrupt Enable Reg
+        }  if (0xf000 <= addr && addr < 0xfe00) {             // More Working Ram info, Sprite Info, I/O, Zero-Page Ram, Interrupt Enable Reg
+            //console.log("wram shadow")
             return MMU.workingRam[addr&0x1FFF]
         
-        } else if (0xfe00 <= addr < 0xff00) {             // Sprites
+        }  if (0xfe00 <= addr && addr < 0xff00) {             // Sprites
+            //console.log("sprites")
             if ((addr & 0xFF) < 0xA0) {
                 GPU.spriteRam[addr & 0xff]
             } else {
                 return 0
             }
         
-        } else if (0xff00 <= addr < 0xff7f) {             // I/O
-            if (0xff00 <= addr < 0xff10) {
+        }  if (0xff00 <= addr && addr < 0xff7f) {             // I/O
+           // console.log("io")
+            if (0xff00 <= addr && addr < 0xff10) {
                 if (addr == 0xff00) {
                     return JOYPAD.rb()                    // Joypad
-                } else if (0xff04 <= addr < 0xff08) {
+                }  if (0xff04 <= addr && addr < 0xff08) {
                     return TIMER.rb(addr)                 // Timer
-                } else if (0xff0f <= addr < 0xff10) {     // Interrup Flags
+                }  if (0xff0f <= addr && addr < 0xff10) {     // Interrup Flags
                     return MMU.interruptFlag
-                } else {
+                } {
                     return 0
                 }
 
-            } else if (0xff10 <= addr < 0xff40) {
+            }  if (0xff10 <= addr && addr < 0xff40) {
+                //console.log("close to end")
                 return 0
 
-            } else if (0xff40 <= addr < 0xff80) {
-                GPU.rb(addr)
+            }  if (0xff40 <= addr && addr< 0xff80) {
+                //console.log("close to end 2")
+                GPU.readByte(addr)
             }
 
             
         
-        } else if (0xff80 <= addr < 0xfffe) {             // Zero-Page Ram
+        }  if (0xff80 <= addr && addr < 0xfffe) {             // Zero-Page Ram
+            //console.log("Zero page ram")
             return MMU.zeroPageRam[addr&0x7f]
         
-        } else if (addr == 0xffff) {                      // Interrupt Enable Register
+        }  if (addr == 0xffff) {                      // Interrupt Enable Register
+            //console.log("IE reg")
             return MMU.interruptEnableRegister
         } 
         
@@ -184,18 +201,27 @@ var MMU = {
 
     // Read 16-bit word from a given address
     readWord: function(addr) {
-        return (MMU.readByte(addr) + (MMU.readByte(addr + 1) << 8))
+        console.log("reading word")
+        
+        val1 = MMU.readByte(addr)
+        val2 = (MMU.readByte(addr + 1) << 8)
+        var val = val1 +  val2
+
+        console.log(`val1 = ${val1.toString()}`)
+        console.log(`val2 = ${val1.toString()}`)
+
+        return val
     },
 
     // Write 8-bit byte to a given address
     writeByte: function(addr, val) {
-        if (0x0000 <= addr < 0x2000) {                      // Rom Bank 0
+        if (0x0000 <= addr && addr < 0x2000) {                      // Rom Bank 0
             // Turn on external ram
             if (MMU.cartridgeType == 1) {
                 MMU.state[1].ramon = ((val & 0xf) == 0xa)? 1 : 0
             }
         
-        } else if (0x2000 <= addr < 0x4000) {
+        } else if (0x2000 <= addr && addr < 0x4000) {
             // ROM Bank Switch
             if (MMU.cartridgeType == 1) {
                 MMU.state[1].rombank &= 0x60
@@ -210,7 +236,7 @@ var MMU = {
                 MMU.romOffset = MMU.state[1].rombank * 0x4000
             }
         
-        } else if (0x4000 <= addr < 0x6000) {                   // Rom Bank 1
+        } else if (0x4000 <= addr && addr < 0x6000) {                   // Rom Bank 1
             // RAM Bank Switch
             if (MMU.cartridgeType == 1) {
                 if (MMU.state[1].mode) {
@@ -223,51 +249,57 @@ var MMU = {
                 }
             }
         
-        } else if (0x6000 <= addr < 0x8000) {                   // Rest of ROM Bank 1
+        } else if (0x6000 <= addr && addr < 0x8000) {                   // Rest of ROM Bank 1
             if (MMU.cartridgeType == 1) {
                 MMU.state[1].mode = val
             }
         
-        } else if (0x8000 <= addr < 0xa000) {                   // GPU RAM
+        } else if (0x8000 <= addr && addr < 0xa000) {                   // GPU RAM
             // Set GPU RAM
         
-        } else if (0xa000 <= addr < 0xc000) {                   // External RAM
+        } else if (0xa000 <= addr && addr < 0xc000) {                   // External RAM
             MMU.externalRam[MMU.ramOffset + (addr & 0x1fff)] = val
         
-        } else if (0xc000 <= addr < 0xf000) {                   // Working RAM and Shadow
+        } else if (0xc000 <= addr && addr < 0xf000) {                   // Working RAM and Shadow
             MMU.workingRam[addr & 0x1fff] = val
         
 
 
-        } else if (0xf000 <= addr < 0xfe00) {             // More Working Ram info, Sprite Info, I/O, Zero-Page Ram, Interrupt Enable Reg
+        } else if (0xf000 <= addr && addr < 0xfe00) {             // More Working Ram info, Sprite Info, I/O, Zero-Page Ram, Interrupt Enable Reg
+            console.log("wram shadow")
             return MMU.workingRam[addr & 0x1FFF] = val
         
-        } else if (0xfe00 <= addr < 0xff00) {             // Sprites
+        } else if (0xfe00 <= addr && addr < 0xff00) {             // Sprites
+            console.log("sprites")
             if ((addr & 0xFF) < 0xA0) {
                 // set/update sprites in GPU
             } 
         
-        } else if (0xff00 <= addr < 0xff7f) {             // I/O
+        } else if (0xff00 <= addr && addr < 0xff7f) {             // I/O
+            console.log("io")
             if (0xff00 <= addr < 0xff10) {
                 if (addr == 0xff00) {
                     // JOYP
-                } else if (0xff04 <= addr < 0xff08) {
+                } else if (0xff04 <= addr && addr < 0xff08) {
                     // Timer
-                } else if (0xff0f <= addr < 0xff10) {     // Interrup Flags
+                } else if (0xff0f <= addr && addr < 0xff10) {     // Interrup Flags
                     MMU.interruptFlag = val
                 } 
 
-            } else if (0xff10 <= addr < 0xff40) {
+            } else if (0xff10 <= addr && addr < 0xff40) {
+                console.log("close to end")
                 return 0
 
-            } else if (0xff40 <= addr < 0xff80) {
+            } else if (0xff40 <= addr && addr < 0xff80) {
                 // Read info from GPU mem addr
             }
         
-        } else if (0xff80 <= addr < 0xfffe) {             // Zero-Page Ram
+        } else if (0xff80 <= addr && addr < 0xfffe) {             // Zero-Page Ram
+            console.log("zero Page")
             MMU.zeroPageRam[addr&0x7f] = val
         
         } else if (addr == 0xffff) {                      // Interrupt Enable Register
+            console.log("IE reg")
             MMU.interruptEnableRegister = val
         }
     },

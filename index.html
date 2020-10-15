@@ -122,6 +122,7 @@
                 trace: '',
 
                 frame: function() {
+                    console.log("frame")
                     var fclock = cpu.clock.m+17556;
                     var brk = document.getElementById('breakpoint').value;
                     var t0 = new Date();
@@ -133,7 +134,12 @@
                     else
                     {
                     //  Z80._r.r = (Z80._r.r+1) & 127;
-                        cpu.map[MMU.readByte(cpu.registers.pc++)]();
+                        var readB = MMU.readByte(cpu.registers.pc++)
+                        console.log(`readB = ${readB}`)
+                        cpu.map[readB]();
+                        console.log(`pc after = ${cpu.registers.pc}`)
+                        //console.log(`read byte = ${readB}`)
+                        //console.log(`info = ${cpu.registers.pc + 1}`)
                         cpu.registers.pc &= 65535;
                     }
                     if(cpu.registers.ime && MMU.interruptEnableRegister && MMU.interruptFlag)
@@ -159,7 +165,7 @@
                     } while(cpu.clock.m < fclock);
 
                     var t1 = new Date();
-                    //document.getElementById('fps').innerHTML=Math.round(10000/(t1-t0))/10;
+                    document.getElementById('fps').innerHTML=Math.round(10000/(t1-t0))/10;
                 },
                 
                 reset: function() {
@@ -171,12 +177,12 @@
                     // Load in ROM - each byte is represented as a string character (get the value based on the unicode val of the char)
                     const $cartridge = document.getElementById('cartridge');
                     $cartridge.addEventListener('change', e => {
-                        console.log("inside")
+                        //console.log("inside")
                         const fileList = $cartridge.files
                         const theFile = fileList[0]
-                        console.log(`file = ${theFile}`)
+                        //console.log(`file = ${theFile}`)
                         handleFileSelect(theFile, $cartridge)
-                        console.log("testing after")
+                        //console.log("testing after")
                         //console.log(`rom = ${rom}`)
                         //MMU.rom = rom
                         //MMU.cartridgeType = MMU.rom.charCodeAt(0x1047)
@@ -264,7 +270,7 @@
                     else if(t[i].className=='io')
                     {
                         j = parseInt(t[i].getAttribute('rel'),16);
-                    x = MMU.readByte(0xFF00+j).toString(16);
+                        x = MMU.readByte(0xFF00+j).toString(16);
                     if(typeof(x) != 'undefined')
                     {
                     if(x.length==1) x='0'+x;

@@ -1,5 +1,49 @@
 //import MMU from './mmu.mjs'
+utils = {
+    // Util functions -----------------------------------------------------------------------------------------------------------
+        // Set flags
+        setZ: function(num){
+            if(num == 1) {
+                cpu.registers.f |= 0x80
+            } else if (num == 0) {
+                cpu.registers.f &= 0x7f
+            } else {
+                console.log("invalid num for setZ()")
+            }
+        },
+        setN: function(num){
+            if(num == 1) {
+                cpu.registers.f |= 0x40
+            } else if (num == 0) {
+                cpu.registers.f &= 0xbf
+            } else {
+                console.log("invalid num for setN()")
+            }
+        },
+        setH: function(num){
+            if(num == 1) {
+                cpu.registers.f |= 0x20
+            } else if (num == 0) {
+                cpu.registers.f &= 0xdf
+            } else {
+                console.log("invalid num for setH()")
+            }
+        },
+        setC: function(num){
+            if(num == 1) {
+                cpu.registers.f |= 0x10
+            } else if (num == 0) {
+                cpu.registers.f &= 0xef
+            } else {
+                console.log("invalid num for setC()")
+            }
+        },
 
+        // Check for Z flag in register
+        checkForZ: function(reg){
+            (reg)?this.setZ(0):this.setZ(1)
+        },
+    }
 // Hold the internal state vals
 var cpu = {
     // time clock
@@ -63,51 +107,7 @@ var cpu = {
     
 
 
-    utils: {
-    // Util functions -----------------------------------------------------------------------------------------------------------
-        // Set flags
-        setZ: function(num){
-            if(num == 1) {
-                cpu.registers.f |= 0x80
-            } else if (num == 0) {
-                cpu.registers.f &= 0x7f
-            } else {
-                console.log("invalid num for setZ()")
-            }
-        },
-        setN: function(num){
-            if(num == 1) {
-                cpu.registers.f |= 0x40
-            } else if (num == 0) {
-                cpu.registers.f &= 0xbf
-            } else {
-                console.log("invalid num for setN()")
-            }
-        },
-        setH: function(num){
-            if(num == 1) {
-                cpu.registers.f |= 0x20
-            } else if (num == 0) {
-                cpu.registers.f &= 0xdf
-            } else {
-                console.log("invalid num for setH()")
-            }
-        },
-        setC: function(num){
-            if(num == 1) {
-                cpu.registers.f |= 0x10
-            } else if (num == 0) {
-                cpu.registers.f &= 0xef
-            } else {
-                console.log("invalid num for setC()")
-            }
-        },
-
-        // Check for Z flag in register
-        checkForZ: function(reg){
-            (reg)?this.setZ(0):this.setZ(1)
-        },
-    },
+    
 
     // Hold all processing operations done by the cpu
     operations: {
@@ -316,7 +316,7 @@ var cpu = {
         CPHL: function() {var temp=cpu.registers.a; var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); temp-=hl; cpu.registers.f|=0x40; 
                         temp&=255; if(!temp) cpu.registers.f|=0x80; if((cpu.registers.a^temp^hl)&0x10) cpu.registers.f|=0x20; cpu.registers.m=2;},
         CPn: function() {var temp=cpu.registers.a; var n=MMU.readByte(cpu.registers.pc); temp-=n; cpu.registers.pc++; cpu.registers.f|=0x40; 
-                        temp&=255; if(!temp) cpu.registers.f|=0x80; if((cpu.registers.a^temp^hl)&0x10) cpu.registers.f|=0x20; cpu.registers.m=2;},
+                        temp&=255; if(!temp) cpu.registers.f|=0x80; if((cpu.registers.a^temp^n)&0x10) cpu.registers.f|=0x20; cpu.registers.m=2;},
 
         // Subtract any reg from a
         SUBr_b: function() {
@@ -843,7 +843,7 @@ var cpu = {
         CALLCnn: function() {cpu.registers.m=3; if((cpu.registers.f&0x10)==0x10) {cpu.registers.sp-=2; MMU.writeWord(cpu.registers.sp,cpu.registers.pc+2); cpu.registers.pc=MMU.readWord(cpu.registers.pc); cpu.registers.m+=2;}else{cpu.registers.pc+=2;}},
 
         // Info at mem address SP is put in PC
-        RET: function() {cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m=3;},
+        RET: function() {console.log(`sp = ${cpu.registers.sp}`); cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m=3;},
 
         // Used at end of interrupt. Resets PC. Signal IO device that interrupt is complete.
         RETI: function() {cpu.operations.resetReg(); cpu.operations.resetValues; cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.ime=1; cpu.registers.m+=2.},

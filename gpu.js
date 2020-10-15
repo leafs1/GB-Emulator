@@ -183,6 +183,7 @@ var GPU = {
     },
 
     checkline: function() {
+        //console.log("checkline")
         GPU.modeclocks += cpu.registers.m
 
         // Hblank
@@ -344,6 +345,8 @@ var GPU = {
                 }
             }
         }
+
+        //console.log("done check-line")
     },
 
     // read 8-bit byte

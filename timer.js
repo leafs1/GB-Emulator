@@ -70,7 +70,7 @@ var TIMER = {
         if (TIMER.clock.sub > 3) {
             TIMER.clock.main ++
             TIMER.clock.sub -= 4
-            TIEMR.clock.div ++
+            TIMER.clock.div ++
 
             if (TIMER.clock.div == 16) {
                 TIMER.clock.div = 0

@@ -16,7 +16,7 @@ function handleFileSelect(evt, $cartridge) {
   
     if (file) {
       var result = reader.readAsArrayBuffer(file);
-      console.log(`result - ${result}`)
+      //console.log(`result - ${result}`)
       //return result
     }
 }
@@ -25,21 +25,22 @@ function handleFileSelect(evt, $cartridge) {
  * @param {ArrayBuffer} arrayBuffer
  */
 function init(arrayBuffer){
-    console.log("in init")
-    console.log(arrayBuffer)
+    //console.log("in init")
+    //console.log(arrayBuffer)
     uint = new Uint8Array(arrayBuffer)
-    console.log(uint)
+    //console.log(uint)
     result = ""
     for (var i=0; i<uint.length; i++) {
         result += String.fromCharCode(uint[i])
         if (i == 0x1047) {
-            console.log(`testing = ${uint[0x1047]}`)
+            //console.log(`testing = ${uint[0x1047]}`)
         }
     }
     //console.log(result)
     MMU.rom = result
     MMU.cartridgeType = MMU.rom.charCodeAt(0x1047)
-
+    //console.log("256")
+    //console.log(MMU.rom.charCodeAt(256))
     //console.log(`cart = ${MMU.cartridgeType}`)
     //console.log(`${MMU.rom[0x1047]}`)
     //return result

@@ -46,19 +46,8 @@ d(obj.a)
 console.log(obj.a)
 
 */
+var a = 11
 
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var request = new XMLHttpRequest();
-
-    request.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.status)
-            console.log(this.responseText.charCodeAt(1) & 0xff);
-            console.log(this.statusText)
-            
-        }
-    };
-
-request.open('GET', 'https://storage.googleapis.com/michaeladragna/test.txt', false);
-request.send();
-
+if (0 <= a < 10) {
+    console.log("here")
+}
