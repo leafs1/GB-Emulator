@@ -115,10 +115,10 @@ var MMU = {
         
     // Read 8-bit byte from a given address
     readByte: function(addr) {
-        //console.log(`addr = ${addr}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
+        console.log(`addr = ${addr}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
 
         if (0x0000 <= addr && addr < 0x1000) {         // ROM bank 0 (0000-3FFF)
-            console.log(`inner address = ${addr}`)
+            //console.log(`inner address = ${addr}`)
             // BIOS
             if (MMU.inBios) {
                 if (addr < 256) {
@@ -201,14 +201,14 @@ var MMU = {
 
     // Read 16-bit word from a given address
     readWord: function(addr) {
-        console.log("reading word")
+        //console.log("reading word")
         
         val1 = MMU.readByte(addr)
         val2 = (MMU.readByte(addr + 1) << 8)
         var val = val1 +  val2
 
-        console.log(`val1 = ${val1.toString()}`)
-        console.log(`val2 = ${val1.toString()}`)
+        //console.log(`val1 = ${val1.toString()}`)
+        //console.log(`val2 = ${val1.toString()}`)
 
         return val
     },
