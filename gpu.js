@@ -155,7 +155,7 @@ var GPU = {
 
         GPU.curline = 0
         GPU.curscan = 0
-        GPU.linemode = 0
+        GPU.linemode = 2
         GPU.modeclocks = 0
         GPU.yscrl = 0
         GPU.xscrl = 0
@@ -295,7 +295,7 @@ var GPU = {
 
                             for (var i=0; i<40; i++) {
                                 obj = GPU.objdatasorted[i]
-                                if (obj.y <= GPU.curscan && (obj.y + 8) > GPU.curline) {
+                                if (obj.y <= GPU.curline && (obj.y + 8) > GPU.curline) {
                                     if (obj.yflip) {
                                         tilerow = GPU.tilemap[obj.tile][7-(GPU.curline-obj.y)]
                                     } else {
@@ -375,7 +375,7 @@ var GPU = {
 
     // write 8-bit byte
     writeByte: function(addr, val) {
-        
+
         var gaddr = addr - 0xff40
         GPU.reg[gaddr] = val
 

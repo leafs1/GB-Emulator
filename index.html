@@ -249,6 +249,7 @@
                     if(t[i].className=='reg')
                     {
                         console.log("its reg")
+                        console.log(t[i].getAttribute('rel'))
                         switch(t[i].getAttribute('rel'))
                     {
                     case 'a': case 'b': case 'c': case 'd': case 'e':
@@ -266,6 +267,7 @@
                         break;
                     }
                     t[i].innerHTML = x;
+                    console.log(`x= ${x}`)
                     }
                     else if(t[i].className=='io')
                     {
