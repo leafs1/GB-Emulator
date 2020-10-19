@@ -351,10 +351,13 @@ var GPU = {
 
     // read 8-bit byte
     readByte: function(addr) {
-        var gaddr = addr - 0xef40
+        var gaddr = addr - 0xFF40
+
+        console.log(`gaddr = ${gaddr}`)
 
         if (gaddr == 0) {
-            return (GPU.lcdon?0x80:0) | ((GPU.bgtilebase == 0x0000)?0x10:0) | (GPU.objsize)?0x04:0 | (GPU.objon)?0x02:0 | (GPU.bgon)?0x01:0
+            console.log("in gaddr 0")
+            return (GPU.lcdon?0x80:0) | ((GPU.bgtilebase == 0x0000)?0x10:0) | ((GPU.bgmapbase==0x1c00)?0x08:0) | (GPU.objsize?0x04:0) | (GPU.objon?0x02:0) | (GPU.bgon?0x01:0)
         } else if (gaddr == 1) {
             return (GPU.curline == GPU.raster?4:0) | GPU.linemode
         } else if (gaddr == 2) {
@@ -372,6 +375,7 @@ var GPU = {
 
     // write 8-bit byte
     writeByte: function(addr, val) {
+        
         var gaddr = addr - 0xff40
         GPU.reg[gaddr] = val
 

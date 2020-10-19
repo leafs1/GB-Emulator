@@ -8,7 +8,6 @@
         <script type="text/javascript" src="./mmu.js"></script>
         <script type="text/javascript" src="./timer.js"></script>
         <script type="text/javascript" src="./romLoader.js"></script>
-        <script type="text/javascript" src="./gameRequester.js"></script>
 
 
         <style type="text/css">
@@ -244,11 +243,12 @@
 
                 dbgupdate: function() {
                     var t = document.getElementById('reg').getElementsByTagName('td');
-                    var x,j,k;
+                    var x,j,k,xStr;
                     for(var i=0; i<t.length; i++)
                     {
                     if(t[i].className=='reg')
                     {
+                        console.log("its reg")
                         switch(t[i].getAttribute('rel'))
                     {
                     case 'a': case 'b': case 'c': case 'd': case 'e':
@@ -270,7 +270,10 @@
                     else if(t[i].className=='io')
                     {
                         j = parseInt(t[i].getAttribute('rel'),16);
-                        x = MMU.readByte(0xFF00+j).toString(16);
+                        x = MMU.readByte(0xFF00+j).toString(16)
+                        console.log(`j = ${j}`)
+                        console.log(`x = ${x}`)
+                        
                     if(typeof(x) != 'undefined')
                     {
                     if(x.length==1) x='0'+x;

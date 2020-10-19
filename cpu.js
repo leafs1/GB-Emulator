@@ -821,7 +821,7 @@ var cpu = {
         JRpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.pc+=nextAdd; cpu.registers.m++;},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was not zero
-        JRNZpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(!(cpu.registers.f&0x80)) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
+        JRNZpc: function() { var i=MMU.readByte(cpu.registers.pc); if(i>127) i=-((~i+1)&255); cpu.registers.pc++; cpu.registers.m=2; if((cpu.registers.f&0x80)==0x00) { cpu.registers.pc+=i; cpu.registers.m++; } },
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was zero
         JRZpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x80) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},

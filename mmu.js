@@ -182,8 +182,9 @@ var MMU = {
                 return 0
 
             }  if (0xff40 <= addr && addr< 0xff80) {
+                console.log("intro case")
                 //console.log("close to end 2")
-                GPU.readByte(addr)
+                return GPU.readByte(addr)
             }
 
             
