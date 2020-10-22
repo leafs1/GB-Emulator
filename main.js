@@ -49,5 +49,5 @@ console.log(obj.a)
 var a = 11
 
 if (0 <= a < 10) {
-    console.log("here")
+    console.log(0xFF00 + 64)
 }

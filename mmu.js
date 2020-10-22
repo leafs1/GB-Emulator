@@ -205,8 +205,11 @@ var MMU = {
         //console.log("reading word")
         
         val1 = MMU.readByte(addr)
+        console.log(`val1 = ${val1}`)
         val2 = (MMU.readByte(addr + 1) << 8)
+        console.log(`val2 = ${val2}`)
         var val = val1 +  val2
+        console.log(`val = ${val}`)
 
         //console.log(`val1 = ${val1.toString()}`)
         //console.log(`val2 = ${val1.toString()}`)
@@ -216,6 +219,7 @@ var MMU = {
 
     // Write 8-bit byte to a given address
     writeByte: function(addr, val) {
+        console.log(`wb ||| addr = ${addr}, val = ${val}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
         if (0x0000 <= addr && addr < 0x2000) {                      // Rom Bank 0
             // Turn on external ram
             if (MMU.cartridgeType == 1) {
@@ -256,7 +260,8 @@ var MMU = {
             }
         
         } else if (0x8000 <= addr && addr < 0xa000) {                   // GPU RAM
-            // Set GPU RAM
+            GPU.vram[addr&0x1FFF] = val;
+	        GPU.updateTile(addr&0x1FFF, val);
         
         } else if (0xa000 <= addr && addr < 0xc000) {                   // External RAM
             MMU.externalRam[MMU.ramOffset + (addr & 0x1fff)] = val
@@ -273,16 +278,19 @@ var MMU = {
         } else if (0xfe00 <= addr && addr < 0xff00) {             // Sprites
             console.log("sprites")
             if ((addr & 0xFF) < 0xA0) {
-                // set/update sprites in GPU
-            } 
+                GPU.spriteRam[addr&0xFF] = val;
+            }
+            GPU.updateOAM(addr,val);
         
         } else if (0xff00 <= addr && addr < 0xff7f) {             // I/O
             console.log("io")
-            if (0xff00 <= addr < 0xff10) {
-                if (addr == 0xff00) {
-                    // JOYP
-                } else if (0xff04 <= addr && addr < 0xff08) {
-                    // Timer
+            if (0xff00 <= addr && addr < 0xff10) {
+                if (addr == 0xff00) {                             // JOYP
+                    KEY.wb(val);
+
+                } else if (0xff04 <= addr && addr < 0xff08) {     // Timer
+                    TIMER.wb(addr, val);
+
                 } else if (0xff0f <= addr && addr < 0xff10) {     // Interrup Flags
                     MMU.interruptFlag = val
                 } 
@@ -291,8 +299,8 @@ var MMU = {
                 console.log("close to end")
                 return 0
 
-            } else if (0xff40 <= addr && addr < 0xff80) {
-                // Read info from GPU mem addr
+            } else if (0xff40 <= addr && addr < 0xff80) {         // Read info from GPU mem addr
+                GPU.writeByte(addr,val);
             }
         
         } else if (0xff80 <= addr && addr < 0xfffe) {             // Zero-Page Ram

@@ -118,9 +118,12 @@ var cpu = {
             cpu.registers.a += cpu.registers.a    // Addition
             
             // if result is greater than 255 (or not enough space in 8-bits)
+            console.log(`a reg = ${cpu.registers.a}`)
             if (cpu.registers.a > 255) {          // Check for carry flag
+                console.log("aa yes")
                 cpu.registers.f = 0x10
             } else {
+                console.log("AA no")
                 cpu.registers.f = 0
             }
 
@@ -852,7 +855,7 @@ var cpu = {
         // If zero flag is set
         RETZ: function() {console.log("RETI3SP");cpu.registers.m=1; if((cpu.registers.f&0x80)==0x80){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
         // If carry flag is not set
-        RETNotC: function() {console.log("RETI4SP");cpu.registers.m=1; if((cpu.registers.f&0x10)==0x00){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
+        RETNotC: function() {console.log(`retnc F = ${cpu.registers.f&0x10}`);cpu.registers.m=1; if((cpu.registers.f&0x10)==0x00){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
         // If carry flag is set
         RETC: function() {console.log("RETI5SP");cpu.registers.m=1; if((cpu.registers.f&0x10)==0x10){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
 
@@ -918,7 +921,7 @@ var cpu = {
         LDrrAH: function() {cpu.registers.a = cpu.registers.h; cpu.registers.m = 1;},
         LDrrAL: function() {cpu.registers.a = cpu.registers.l; cpu.registers.m = 1;},
         LDrrBA: function() {cpu.registers.b = cpu.registers.a; cpu.registers.m = 1;},
-        LDrrBB: function() {cpu.registers.b = cpu.registers.b; cpu.registers.m = 1;},
+        LDrrBB: function() {console.log(`LDrrBB before = ${cpu.registers.a}`); cpu.registers.b = cpu.registers.b; console.log(`LDrrBB after = ${cpu.registers.a}`); cpu.registers.m = 1;},
         LDrrBC: function() {cpu.registers.b = cpu.registers.c; cpu.registers.m = 1;},
         LDrrBD: function() {cpu.registers.b = cpu.registers.d; cpu.registers.m = 1;},
         LDrrBE: function() {cpu.registers.b = cpu.registers.e; cpu.registers.m = 1;},
@@ -1031,7 +1034,7 @@ var cpu = {
                             if(cpu.registers.l==255) cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=2;},
 
         // Get value from mem address in PC appended to 0xFF00.
-        LDAIOn: function() {cpu.registers.a=MMU.readByte(0xFF00+MMU.readByte(cpu.registers.pc)); cpu.registers.pc++; cpu.registers.m=3;},
+        LDAIOn: function() {console.log(`LDAIOn before a = ${cpu.registers.a}`); cpu.registers.a=MMU.readByte(0xFF00+MMU.readByte(cpu.registers.pc)); console.log(`LDAIOn after a = ${cpu.registers.a}`); cpu.registers.pc++; cpu.registers.m=3;},
 
         // Add A to right half(lower 8 bits) of value in mem address pc.
         LDIOnA: function() {MMU.writeByte(0xFF00+MMU.readByte(cpu.registers.pc),cpu.registers.a); cpu.registers.pc++; cpu.registers.m=3;},
