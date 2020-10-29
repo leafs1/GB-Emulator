@@ -194,8 +194,9 @@ var GPU = {
                 // End of hblank for last scanline and then render screen
                 if (GPU.curline == 143) {
                     GPU.linemode = 1
+                    //console.log(`GPU.scrn = ${GPU.scrn.data}`)
                     GPU.canvas.putImageData(GPU.scrn, 0, 0)
-                    MMU.if |= 1
+                    MMU.interruptFlag |= 1
                 } else {
                     GPU.linemode = 2
                 }
@@ -346,6 +347,7 @@ var GPU = {
                     }
                 }
             }
+            //console.log(`checkline review: GPU.vram = ${GPU.vram}\nGPU.tilemap = ${GPU.tilemap}\nGPU.curscan = ${GPU.curscan}\nGPU.objsize = ${GPU.objsize}`)
         }
 
         //console.log("done check-line")

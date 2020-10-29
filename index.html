@@ -146,11 +146,11 @@
                     {
                         cpu.halt=0; cpu.registers.ime=0;
                         var ifired = MMU.interruptEnableRegister & MMU.interruptFlag;
-                        if(ifired&1) { MMU.interruptFlag &= 0xFE; cpu.operations.RST40(); }
-                        else if(ifired&2) { MMU.interruptFlag &= 0xFD; cpu.operations.RST48(); }
-                        else if(ifired&4) { MMU.interruptFlag &= 0xFB; cpu.operations.RST50(); }
-                        else if(ifired&8) { MMU.interruptFlag &= 0xF7; cpu.operations.RST58(); }
-                        else if(ifired&16) { MMU.interruptFlag &= 0xEF; cpu.operations.RST60(); }
+                        if(ifired&1) { console.log(`if before 1 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xFE; cpu.operations.RST40(); console.log(`if after 1 = ${MMU.interruptFlag}`);}
+                        else if(ifired&2) { console.log(`if before 2 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xFD; cpu.operations.RST48();console.log(`if after 2 = ${MMU.interruptFlag}`); }
+                        else if(ifired&4) { console.log(`if before 3 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xFB; cpu.operations.RST50(); console.log(`if after 3 = ${MMU.interruptFlag}`);}
+                        else if(ifired&8) { console.log(`if before 4 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xF7; cpu.operations.RST58(); console.log(`if after 4 = ${MMU.interruptFlag}`);}
+                        else if(ifired&16) { console.log(`if before 5 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xEF; cpu.operations.RST60(); console.log(`if after 5 = ${MMU.interruptFlag}`);}
                     else { cpu.registers.ime=1; }
                     }
                     //jsGB.dbgtrace();
@@ -318,7 +318,9 @@
                     cpu.halt=0; cpu.registers.ime=0;
                     if((MMU.interruptEnableRegister&1) && (MMU.interruptFlag&1))
                     {
+                        console.log(`if before 6 = ${MMU.interruptFlag}`);
                         MMU.interruptFlag &= 0xFE; cpu.operations.RST40();
+                        console.log(`if after 6 = ${MMU.interruptFlag}`);
                     }
                     }
                     else

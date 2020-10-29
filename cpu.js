@@ -824,7 +824,7 @@ var cpu = {
         JRpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.pc+=nextAdd; cpu.registers.m++;},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was not zero
-        JRNZpc: function() { var i=MMU.readByte(cpu.registers.pc); console.log(`i = ${i}`); if(i>127) {i=-((~i+1)&255); console.log(`True 1 = ${i}`)}; cpu.registers.pc++; cpu.registers.m=2; console.log(`reg f = ${cpu.registers.f}`);if((cpu.registers.f&0x80)==0x00) { console.log(`True 2`); cpu.registers.pc+=i; cpu.registers.m++; } console.log(`pc = ${cpu.registers.pc}`)},
+        JRNZpc: function() { var i=MMU.readByte(cpu.registers.pc); console.log(`i = ${i}`); if(i>127) {i=-((~i+1)&255); console.log(`True 1 = ${i}`)}; cpu.registers.pc++; cpu.registers.m=2; if((cpu.registers.f&0x80)==0x00) { console.log(`True 2`); cpu.registers.pc+=i; cpu.registers.m++; } console.log(`pc = ${cpu.registers.pc}`)},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was zero
         JRZpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x80) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
@@ -998,7 +998,7 @@ var cpu = {
         LDDEmA: function() {MMU.writeByte((cpu.registers.d<<8)+cpu.registers.e, cpu.registers.a); cpu.registers.m=2;},
 
         // Load content in BC into A
-        LDABCm: function () {cpu.registers.a = MMU.readByte((cpu.registers.b << 8)+cpu.registers.c); cpu.registers.m = 2;},
+        LDABCm: function () {console.log(`LDABCm before a = ${cpu.registers.a}, b = ${cpu.registers.b}, c = ${cpu.registers.c}`); cpu.registers.a = MMU.readByte((cpu.registers.b << 8)+cpu.registers.c); console.log(`LDABCm after a = ${cpu.registers.a}, b = ${cpu.registers.b}, c = ${cpu.registers.c}`); cpu.registers.m = 2;},
 
         // Load content in DE into A
         LDADEm: function() {cpu.registers.a = MMU.readByte((cpu.registers.d << 8) + cpu.registers.e); cpu.registers.m = 2;},

@@ -172,6 +172,7 @@ var MMU = {
                 }  if (0xff04 <= addr && addr < 0xff08) {
                     return TIMER.rb(addr)                 // Timer
                 }  if (0xff0f <= addr && addr < 0xff10) {     // Interrup Flags
+                    console.log("return if")
                     return MMU.interruptFlag
                 } {
                     return 0
@@ -189,8 +190,9 @@ var MMU = {
 
             
         
-        }  if (0xff80 <= addr && addr < 0xfffe) {             // Zero-Page Ram
+        }  if (0xff8f <= addr && addr < 0xfffe) {             // Zero-Page Ram
             //console.log("Zero page ram")
+            console.log(MMU.zeroPageRam)
             return MMU.zeroPageRam[addr&0x7f]
         
         }  if (addr == 0xffff) {                      // Interrupt Enable Register
@@ -292,6 +294,7 @@ var MMU = {
                     TIMER.wb(addr, val);
 
                 } else if (0xff0f <= addr && addr < 0xff10) {     // Interrup Flags
+                    console.log(`set if = ${val}`)
                     MMU.interruptFlag = val
                 } 
 
@@ -303,7 +306,7 @@ var MMU = {
                 GPU.writeByte(addr,val);
             }
         
-        } else if (0xff80 <= addr && addr < 0xfffe) {             // Zero-Page Ram
+        } else if (0xff8f <= addr && addr < 0xfffe) {             // Zero-Page Ram
             console.log("zero Page")
             MMU.zeroPageRam[addr&0x7f] = val
         
