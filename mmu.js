@@ -288,7 +288,7 @@ var MMU = {
             console.log("io")
             if (0xff00 <= addr && addr < 0xff10) {
                 if (addr == 0xff00) {                             // JOYP
-                    KEY.wb(val);
+                    JOYPAD.wb(val);
 
                 } else if (0xff04 <= addr && addr < 0xff08) {     // Timer
                     TIMER.wb(addr, val);

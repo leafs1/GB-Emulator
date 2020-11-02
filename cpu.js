@@ -437,7 +437,7 @@ var cpu = {
         ORr_b: function(){cpu.registers.a |= cpu.registers.b; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ORr_c: function(){cpu.registers.a |= cpu.registers.c; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ORr_d: function(){cpu.registers.a |= cpu.registers.d; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
-        ORr_e: function(){cpu.registers.a |= cpu.registers.e; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
+        ORr_e: function(){console.log(`or before || a = ${cpu.registers.a}, f = ${cpu.registers.f}`); cpu.registers.a |= cpu.registers.e; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1; console.log(`or after || a = ${cpu.registers.a}, f = ${cpu.registers.f}`);},
         ORr_h: function(){cpu.registers.a |= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ORr_l: function(){cpu.registers.a |= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ORr_a: function(){cpu.registers.a |= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
@@ -481,9 +481,9 @@ var cpu = {
         DECHLm: function() {var decremented=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); ((decremented&0x0f)==0)?utils.setH(1):utils.setH(0); utils.setN(1);  
                             (decremented==0)?decremented=0xff:decremented--; if(decremented==0){utils.setZ(1)}else{utils.setZ(0)}; 
                             MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, decremented);  cpu.registers.m=3;},
-        DECBC: function() {cpu.registers.c=(cpu.registers.c-1)&255; (cpu.registers.c==255)?null:cpu.registers.b=(cpu.registers.b-1)&255; cpu.registers.m=1;},
-        DECDE: function() {cpu.registers.e=(cpu.registers.e-1)&255; (cpu.registers.e==255)?null:cpu.registers.d=(cpu.registers.d-1)&255; cpu.registers.m=1;},
-        DECHL: function() {cpu.registers.l=(cpu.registers.l-1)&255; (cpu.registers.l==255)?null:cpu.registers.h=(cpu.registers.h-1)&255; cpu.registers.m=1;},
+        DECBC: function() {cpu.registers.c=(cpu.registers.c-1)&255; (cpu.registers.c==255)?cpu.registers.b=(cpu.registers.b-1)&255:null; cpu.registers.m=1;},
+        DECDE: function() {console.log(`decde before || e = ${cpu.registers.e}, d = ${cpu.registers.d}`); cpu.registers.e=(cpu.registers.e-1)&255; (cpu.registers.e==255)?cpu.registers.d=(cpu.registers.d-1)&255 : null; console.log(`decde after || e = ${cpu.registers.e}, d = ${cpu.registers.d}`);cpu.registers.m=1;},
+        DECHL: function() {cpu.registers.l=(cpu.registers.l-1)&255; (cpu.registers.l==255)?cpu.registers.h=(cpu.registers.h-1)&255:null; cpu.registers.m=1;},
         DECSP: function() {console.log("DECSP"); cpu.registers.sp=(cpu.registers.sp-1)&65535; cpu.registers.m=1;},
 
         // Bit Manupulation ------------------------------------------------------------------------------------------------------------
@@ -824,7 +824,7 @@ var cpu = {
         JRpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.pc+=nextAdd; cpu.registers.m++;},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was not zero
-        JRNZpc: function() { var i=MMU.readByte(cpu.registers.pc); console.log(`i = ${i}`); if(i>127) {i=-((~i+1)&255); console.log(`True 1 = ${i}`)}; cpu.registers.pc++; cpu.registers.m=2; if((cpu.registers.f&0x80)==0x00) { console.log(`True 2`); cpu.registers.pc+=i; cpu.registers.m++; } console.log(`pc = ${cpu.registers.pc}`)},
+        JRNZpc: function() { var i=MMU.readByte(cpu.registers.pc); console.log(`i = ${i}, f = ${cpu.registers.f}`); if(i>127) {i=-((~i+1)&255); console.log(`True 1 = ${i}`)}; cpu.registers.pc++; cpu.registers.m=2; if((cpu.registers.f&0x80)==0x00) { console.log(`True 2`); cpu.registers.pc+=i; cpu.registers.m++; } console.log(`pc = ${cpu.registers.pc}`)},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was zero
         JRZpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x80) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},

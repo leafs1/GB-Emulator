@@ -135,7 +135,7 @@
                     //  Z80._r.r = (Z80._r.r+1) & 127;
                         var readB = MMU.readByte(cpu.registers.pc++)
                         console.log(`readB = ${readB}`)
-                        console.log(`f = ${cpu.registers.f&0x10}`)
+                        console.log(`f = ${cpu.registers.f}`)
                         cpu.map[readB]();
                         console.log(`pc after = ${cpu.registers.pc}`)
                         //console.log(`read byte = ${readB}`)

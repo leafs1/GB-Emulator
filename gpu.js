@@ -184,7 +184,8 @@ var GPU = {
     },
 
     checkline: function() {
-        //console.log("checkline")
+       // console.log(`checkline || modeclocks = ${GPU.modeclocks}, linemode = ${GPU.linemode}, `)
+
         GPU.modeclocks += cpu.registers.m
 
         // Hblank
@@ -282,6 +283,7 @@ var GPU = {
                                 linebase += 4
                             } while (--w)
                         } 
+                        console.log(`bgon || linebase = ${linebase}, mapbase = ${mapbase}, y = ${y}, x = ${x}, t = ${t}, w = ${w}, tilerow = ${tilerow}`)
                     }
 
                     if (GPU.objon) {
@@ -344,6 +346,7 @@ var GPU = {
                                 }
                             }
                         }
+                        console.log(`objon || cnt = ${cnt}, tilerow = ${tilerow}, obj = ${obj}, pal = ${pal}, x = ${x}, linebase = ${linebase}, `)
                     }
                 }
             }
