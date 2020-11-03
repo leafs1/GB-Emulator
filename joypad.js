@@ -7,14 +7,14 @@ var JOYPAD = {
         if (JOYPAD.typeKey == 0x00) {
             return 0x00
         } else if (JOYPAD.typeKey == 0x10) {
-            return keys[0]
+            return JOYPAD.keys[0]
         } else if (JOYPAD.typeKey == 0x20) {
-            return keys[1]
+            return JOYPAD.keys[1]
         }
     },
 
     wb: function(val) {
-        JOYPAD.typeKey = v & 0x30
+        JOYPAD.typeKey = val & 0x30
     },
 
     reset: function() {
