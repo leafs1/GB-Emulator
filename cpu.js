@@ -130,7 +130,7 @@ var cpu = {
             cpu.registers.a &= 255                // Convert to 8-bits
 
             // if a val when added to 255 with bitewise and is zero, ! in front returns true
-            if (!(cpu.registers.a & 255)) {       // Check for zero flag
+            if (!cpu.registers.a) {       // Check for zero flag
                 cpu.registers.f |= 0x80 
             }        
 
@@ -144,22 +144,22 @@ var cpu = {
         },
         AddAB: function() {
             cpu.registers.a += cpu.registers.b; cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255;
-            if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+            if (!cpu.registers.a) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.b & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                      
         },
         AddAC: function() {
             cpu.registers.a += cpu.registers.c; cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255;
-            if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+            if (!cpu.registers.a) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.c & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                        
         },
         AddAD: function() {
             cpu.registers.a += cpu.registers.d; cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255;
-            if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+            if (!cpu.registers.a) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.d & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                        
         },
         AddAE: function() {
             cpu.registers.a += cpu.registers.e; cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255;
-            if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+            if (!cpu.registers.a) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.e & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                       
         },
         AddAH: function() {
@@ -169,33 +169,33 @@ var cpu = {
         },
         AddAL: function() {
             cpu.registers.a += cpu.registers.l; cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255;
-            if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+            if (!cpu.registers.a) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 1;                                          
         },
         AddHL: function() {var hl=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a += hl; 
-            cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+            cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!cpu.registers.a) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 2;}, 
         
         // Add info at PC mem address to A
         Addn: function() {var n=MMU.readByte(cpu.registers.pc); cpu.registers.a += n; 
-            cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!(cpu.registers.a & 255)) {cpu.registers.f |= 0x80};
+            cpu.registers.f=(cpu.registers.a > 255)?0x10:0; cpu.registers.a &= 255; if (!cpu.registers.a) {cpu.registers.f |= 0x80};
             if ((((cpu.registers.a & 0xF) + (cpu.registers.l & 0xF)) & 0x10) == 0x10) {cpu.registers.f |= 0x20} cpu.registers.m = 2;},
         
         // Add BC to HL
-        AddHLBC: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.b<<8)+cpu.registers.c; (hl>65535)?utils.setH(1):utils.setH(0);
-                            if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
+        AddHLBC: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.b<<8)+cpu.registers.c; (hl>65535)?cpu.registers.f|=0x10:cpu.registers.f&=0xef;
+                            cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; cpu.registers.m=3;},
         
         // Add DE to HL
-        AddHLDE: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.d<<8)+cpu.registers.e; (hl>65535)?utils.setH(1):utils.setH(0);
-                            if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
+        AddHLDE: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.d<<8)+cpu.registers.e; (hl>65535)?cpu.registers.f|=0x10:cpu.registers.f&=0xef;
+                            cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255;cpu.registers.m=3;},
 
         // Add HL to itself
-        AddHLHL: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.h<<8)+cpu.registers.l; (hl>65535)?utils.setH(1):utils.setH(0);
-                            if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
+        AddHLHL: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=(cpu.registers.h<<8)+cpu.registers.l; (hl>65535)?cpu.registers.f|=0x10:cpu.registers.f&=0xef;
+                            cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; cpu.registers.m=3;},
 
         // Add HL to SP
-        AddHLSP: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=cpu.registers.sp; (hl>65535)?utils.setH(1):utils.setH(0);
-                            if((hl&0x10000)>0){hl-=0x10000; utils.setC(1)}else{utils.setC(0)}; cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255; utils.setN(0); cpu.registers.m=3;},
+        AddHLSP: function() {var hl=(cpu.registers.h<<8)+cpu.registers.l; hl+=cpu.registers.sp; (hl>65535)?cpu.registers.f|=0x10:cpu.registers.f&=0xef;
+                            cpu.registers.h=(hl>>8)&255; cpu.registers.l=hl&255;  cpu.registers.m=3;},
 
         // Add content at mem address, PC, to SP
         ADDSPn: function() {console.log("ADDSPn"); i=MMU.readByte(cpu.registers.pc); if(i>127) i=-((~i+1)&255); cpu.registers.pc++; cpu.registers.sp+=i; cpu.registers.m=4;},
