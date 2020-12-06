@@ -115,7 +115,10 @@ var MMU = {
         
     // Read 8-bit byte from a given address
     readByte: function(addr) {
-        console.log(`addr = ${addr}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
+        //console.log(`counter mmu = ${jsGB.counter}`)
+        if (jsGB.counter > 60000) {
+            console.log(`addr = ${addr}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
+        }
 
         if (0x0000 <= addr && addr < 0x1000) {         // ROM bank 0 (0000-3FFF)
             //console.log(`inner address = ${addr}`)
@@ -127,13 +130,13 @@ var MMU = {
                     MMU.inBios = 0
                 }
             } else {
-                console.log("else")
-                console.log(MMU.rom.charCodeAt(addr))
+                //console.log("else")
+                //console.log(MMU.rom.charCodeAt(addr))
                 return MMU.rom.charCodeAt(addr)
             }
 
         } if (0x1000 <= addr && addr < 0x4000) {             // Rest of ROM Bank 0
-            //console.log(`idk = ${MMU.rom.charCodeAt(addr)}`)
+            console.log(`idk = ${MMU.rom.charCodeAt(addr)}`)
             return MMU.rom.charCodeAt(addr)
 
         } if (0x4000 <= addr && addr < 0x8000) {             // ROM Bank 1
@@ -172,7 +175,7 @@ var MMU = {
                 }  if (0xff04 <= addr && addr < 0xff08) {
                     return TIMER.rb(addr)                 // Timer
                 }  if (0xff0f <= addr && addr < 0xff10) {     // Interrup Flags
-                    console.log("return if")
+                    //console.log("return if")
                     return MMU.interruptFlag
                 } {
                     return 0
@@ -183,7 +186,7 @@ var MMU = {
                 return 0
 
             }  if (0xff40 <= addr && addr< 0xff80) {
-                console.log("intro case")
+                //console.log("intro case")
                 //console.log("close to end 2")
                 return GPU.readByte(addr)
             }
@@ -192,7 +195,7 @@ var MMU = {
         
         }  if (0xff8f <= addr && addr < 0xfffe) {             // Zero-Page Ram
             //console.log("Zero page ram")
-            console.log(MMU.zeroPageRam)
+            //console.log(MMU.zeroPageRam)
             return MMU.zeroPageRam[addr&0x7f]
         
         }  if (addr == 0xffff) {                      // Interrupt Enable Register
@@ -207,11 +210,17 @@ var MMU = {
         //console.log("reading word")
         
         val1 = MMU.readByte(addr)
-        console.log(`val1 = ${val1}`)
+        if (jsGB.counter > 60000) {
+                    console.log(`val1 = ${val1}`)
+        }
         val2 = (MMU.readByte(addr + 1) << 8)
-        console.log(`val2 = ${val2}`)
+        if (jsGB.counter > 60000) {
+                    console.log(`val2 = ${val2}`)
+        }
         var val = val1 +  val2
-        console.log(`val = ${val}`)
+        if (jsGB.counter > 60000) {
+            console.log(`val = ${val}`)
+        }
 
         //console.log(`val1 = ${val1.toString()}`)
         //console.log(`val2 = ${val1.toString()}`)
@@ -221,7 +230,7 @@ var MMU = {
 
     // Write 8-bit byte to a given address
     writeByte: function(addr, val) {
-        console.log(`wb ||| addr = ${addr}, val = ${val}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
+        //console.log(`wb ||| addr = ${addr}, val = ${val}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
         if (0x0000 <= addr && addr < 0x2000) {                      // Rom Bank 0
             // Turn on external ram
             if (MMU.cartridgeType == 1) {

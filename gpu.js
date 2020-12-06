@@ -185,9 +185,15 @@ var GPU = {
 
     checkline: function() {
        // console.log(`checkline || modeclocks = ${GPU.modeclocks}, linemode = ${GPU.linemode}, `)
+       if (jsGB.counter > 60000) {
 
+        console.log(`m checkline = ${cpu.registers.m}`)
+    }
         GPU.modeclocks += cpu.registers.m
+        if (jsGB.counter > 60000) {
 
+        console.log(`inside linemode = ${GPU.linemode}, ${GPU.modeclocks}`)
+        }
         // Hblank
         if (GPU.linemode == 0) {
             if (GPU.modeclocks >= 51) {
@@ -360,7 +366,7 @@ var GPU = {
     readByte: function(addr) {
         var gaddr = addr - 0xFF40
 
-        console.log(`gaddr = ${gaddr}`)
+        console.log(`gadr = ${gaddr}`)
 
         if (gaddr == 0) {
             console.log("in gaddr 0")
@@ -374,6 +380,7 @@ var GPU = {
         } else if (gaddr == 3) {
             return GPU.xscrl
         } else if (gaddr == 4) {
+            console.log(`curline = ${GPU.curline}`)
             return GPU.curline
         } else if (gaddr == 5) {
             return GPU.raster

@@ -116,7 +116,7 @@
 
         <script type="text/javascript">
             jsGB = {
-
+                counter: -1, 
                 run_interval: 0,
                 trace: '',
 
@@ -133,11 +133,21 @@
                     else
                     {
                     //  Z80._r.r = (Z80._r.r+1) & 127;
+                    //console.log("increment")
+                    jsGB.counter ++
+                    //console.log(`counter html = ${jsGB.counter}`)
                         var readB = MMU.readByte(cpu.registers.pc++)
-                        console.log(`readB = ${readB}`)
-                        console.log(`f = ${cpu.registers.f}`)
+                        if (jsGB.counter > 60000) {
+                            console.log(`curline reset = ${GPU.curline}, ${GPU.raster}, ${GPU.linemode}, ${GPU.modeclocks}`)
+                            console.log(`readB = ${readB}`)
+                            console.log(`f = ${cpu.registers.f}`)
+                        }
+                        
                         cpu.map[readB]();
+                        if (jsGB.counter > 60000) {
+
                         console.log(`pc after = ${cpu.registers.pc}`)
+                        }
                         //console.log(`read byte = ${readB}`)
                         //console.log(`info = ${cpu.registers.pc + 1}`)
                         cpu.registers.pc &= 65535;
@@ -166,6 +176,7 @@
 
                     var t1 = new Date();
                     document.getElementById('fps').innerHTML=Math.round(10000/(t1-t0))/10;
+                    
                 },
                 
                 reset: function() {
