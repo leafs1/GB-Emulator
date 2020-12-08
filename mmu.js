@@ -116,7 +116,7 @@ var MMU = {
     // Read 8-bit byte from a given address
     readByte: function(addr) {
         //console.log(`counter mmu = ${jsGB.counter}`)
-        if (jsGB.counter > 60000) {
+        if (jsGB.counter > 90000) {
             console.log(`addr = ${addr}, PC = ${cpu.registers.pc}, in bios = ${MMU.inBios}`)
         }
 
@@ -136,7 +136,7 @@ var MMU = {
             }
 
         } if (0x1000 <= addr && addr < 0x4000) {             // Rest of ROM Bank 0
-            console.log(`idk = ${MMU.rom.charCodeAt(addr)}`)
+            console.log(`idk = ${MMU.rom.charCodeAt(addr)}, ${cpu.registers.c}`)
             return MMU.rom.charCodeAt(addr)
 
         } if (0x4000 <= addr && addr < 0x8000) {             // ROM Bank 1
@@ -210,15 +210,15 @@ var MMU = {
         //console.log("reading word")
         
         val1 = MMU.readByte(addr)
-        if (jsGB.counter > 60000) {
+        if (jsGB.counter > 90000) {
                     console.log(`val1 = ${val1}`)
         }
         val2 = (MMU.readByte(addr + 1) << 8)
-        if (jsGB.counter > 60000) {
+        if (jsGB.counter > 90000) {
                     console.log(`val2 = ${val2}`)
         }
         var val = val1 +  val2
-        if (jsGB.counter > 60000) {
+        if (jsGB.counter > 90000) {
             console.log(`val = ${val}`)
         }
 

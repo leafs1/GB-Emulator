@@ -435,7 +435,7 @@ var cpu = {
 
         // OR operation on registers
         ORr_b: function(){cpu.registers.a |= cpu.registers.b; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
-        ORr_c: function(){cpu.registers.a |= cpu.registers.c; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
+        ORr_c: function(){console.log(`f before or c = ${cpu.registers.f}, ${cpu.registers.a}, ${cpu.registers.c}`); cpu.registers.a |= cpu.registers.c; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1; console.log(`f after or c = ${cpu.registers.f}`);},
         ORr_d: function(){cpu.registers.a |= cpu.registers.d; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ORr_e: function(){console.log(`or before || a = ${cpu.registers.a}, f = ${cpu.registers.f}`); cpu.registers.a |= cpu.registers.e; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1; console.log(`or after || a = ${cpu.registers.a}, f = ${cpu.registers.f}`);},
         ORr_h: function(){cpu.registers.a |= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
@@ -481,7 +481,7 @@ var cpu = {
         DECHLm: function() {var decremented=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); ((decremented&0x0f)==0)?utils.setH(1):utils.setH(0); utils.setN(1);  
                             (decremented==0)?decremented=0xff:decremented--; if(decremented==0){utils.setZ(1)}else{utils.setZ(0)}; 
                             MMU.writeByte((cpu.registers.h<<8)+cpu.registers.l, decremented);  cpu.registers.m=3;},
-        DECBC: function() {cpu.registers.c=(cpu.registers.c-1)&255; (cpu.registers.c==255)?cpu.registers.b=(cpu.registers.b-1)&255:null; cpu.registers.m=1;},
+        DECBC: function() {console.log(`DECBC before b = ${cpu.registers.b}, c = ${cpu.registers.c}`); cpu.registers.c=(cpu.registers.c-1)&255; (cpu.registers.c==255)?cpu.registers.b=(cpu.registers.b-1)&255:null; cpu.registers.m=1; console.log(`DECBC after b = ${cpu.registers.b}, c = ${cpu.registers.c}`);},
         DECDE: function() {console.log(`decde before || e = ${cpu.registers.e}, d = ${cpu.registers.d}`); cpu.registers.e=(cpu.registers.e-1)&255; (cpu.registers.e==255)?cpu.registers.d=(cpu.registers.d-1)&255 : null; console.log(`decde after || e = ${cpu.registers.e}, d = ${cpu.registers.d}`);cpu.registers.m=1;},
         DECHL: function() {cpu.registers.l=(cpu.registers.l-1)&255; (cpu.registers.l==255)?cpu.registers.h=(cpu.registers.h-1)&255:null; cpu.registers.m=1;},
         DECSP: function() {console.log("DECSP"); cpu.registers.sp=(cpu.registers.sp-1)&65535; cpu.registers.m=1;},
@@ -824,7 +824,7 @@ var cpu = {
         JRpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; cpu.registers.pc+=nextAdd; cpu.registers.m++;},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was not zero
-        JRNZpc: function() { var i=MMU.readByte(cpu.registers.pc); if(jsGB.counter > 60000){console.log(`i = ${i}, f = ${cpu.registers.f}`)}; if(i>127) {i=-((~i+1)&255); if(jsGB.counter > 60000){console.log(`True 1 = ${i}`)}}; cpu.registers.pc++; cpu.registers.m=2; if((cpu.registers.f&0x80)==0x00) { if(jsGB.counter > 60000){console.log(`True 2`);} cpu.registers.pc+=i; cpu.registers.m++; } console.log(`pc = ${cpu.registers.pc}`)},
+        JRNZpc: function() { var i=MMU.readByte(cpu.registers.pc); if(jsGB.counter > 90000){console.log(`i = ${i}, f = ${cpu.registers.f}`)}; if(i>127) {i=-((~i+1)&255); if(jsGB.counter > 90000){console.log(`True 1 = ${i}`)}}; cpu.registers.pc++; cpu.registers.m=2; if((cpu.registers.f&0x80)==0x00) { if(jsGB.counter > 90000){console.log(`True 2`);} cpu.registers.pc+=i; cpu.registers.m++; } console.log(`pc = ${cpu.registers.pc}`)},
 
         // Adds signed byte to the current address, then jumps to it. Only if last operation was zero
         JRZpc: function() {var nextAdd=MMU.readByte(cpu.registers.pc); if(nextAdd>127){nextAdd=-((~nextAdd+1)&255)}; cpu.registers.pc++; cpu.registers.m=2; if(cpu.registers.f&0x80) {cpu.registers.pc+=nextAdd; cpu.registers.m++;}},
@@ -849,7 +849,7 @@ var cpu = {
         RET: function() {console.log(`sp = ${cpu.registers.sp}, hl = ${(cpu.registers.h<<8)+cpu.registers.l}`); cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m=3;},
 
         // Used at end of interrupt. Resets PC. Signal IO device that interrupt is complete.
-        RETI: function() {console.log("RETIsp");cpu.operations.resetReg(); cpu.operations.resetValues; cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.ime=1; cpu.registers.m = 3},
+        RETI: function() {console.log(`RETIsp before c = ${cpu.registers.c}`);cpu.operations.resetReg(); cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.ime=1; cpu.registers.m = 3; console.log(`RETIsp after c = ${cpu.registers.c}`);},
         // If zero flag is not set
         RETNotZ: function() {console.log("RETI2SP");cpu.registers.m=1; if((cpu.registers.f&0x80)==0x00){cpu.registers.pc=MMU.readWord(cpu.registers.sp); cpu.registers.sp+=2; cpu.registers.m+=2}},
         // If zero flag is set
@@ -893,7 +893,7 @@ var cpu = {
                                 cpu._resetValues.h=cpu.registers.h; cpu._resetValues.l=cpu.registers.l;},
         
         // Set register values to the reset vals
-        resetReg: function() {cpu.registers.a=cpu._resetValues.a; cpu.registers.b=cpu._resetValues.b; cpu.registers.c=cpu._resetValues;
+        resetReg: function() { console.log(`reset reg c = ${cpu.registers.c}, rsv_c = ${cpu._resetValues.c}`); cpu.registers.a=cpu._resetValues.a; cpu.registers.b=cpu._resetValues.b; cpu.registers.c=cpu._resetValues.c;
                             cpu.registers.d=cpu._resetValues.d; cpu.registers.e=cpu._resetValues.e; cpu.registers.f=cpu._resetValues.f;
                             cpu.registers.h=cpu._resetValues.h; cpu.registers.l=cpu._resetValues.l;},
 
@@ -906,7 +906,7 @@ var cpu = {
         PUSHAF: function() {console.log("PUSHsp4");cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.a); cpu.registers.sp--; MMU.writeByte(cpu.registers.sp, cpu.registers.f); cpu.registers.m=3;},
 
         // Pop 16-bit reg off of stack
-        POPBC: function() {console.log("POPsp1"); cpu.registers.c=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.b=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.m=3;},
+        POPBC: function() {console.log(`POPsp1 before c = ${cpu.registers.c}, b = ${cpu.registers.b}, sp = ${cpu.registers.sp}`); cpu.registers.c=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.b=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.m=3; console.log(`POPsp1 after c = ${cpu.registers.c}, b = ${cpu.registers.b}, sp = ${cpu.registers.sp}`);},
         POPDE: function() {console.log(`POPsp2 before = ${cpu.registers.sp}`);cpu.registers.e=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.d=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; console.log(`POPsp2 after = ${cpu.registers.sp}`);cpu.registers.m=3;},
         POPHL: function() {console.log("POPsp3");cpu.registers.l=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.h=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.m=3;},
         POPAF: function() {console.log("POPsp4");cpu.registers.f=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.a=MMU.readByte(cpu.registers.sp); cpu.registers.sp++; cpu.registers.m=3;},

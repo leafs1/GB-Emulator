@@ -137,14 +137,14 @@
                     jsGB.counter ++
                     //console.log(`counter html = ${jsGB.counter}`)
                         var readB = MMU.readByte(cpu.registers.pc++)
-                        if (jsGB.counter > 60000) {
+                        if (jsGB.counter > 90000) {
                             console.log(`curline reset = ${GPU.curline}, ${GPU.raster}, ${GPU.linemode}, ${GPU.modeclocks}`)
                             console.log(`readB = ${readB}`)
                             console.log(`f = ${cpu.registers.f}`)
                         }
                         
                         cpu.map[readB]();
-                        if (jsGB.counter > 60000) {
+                        if (jsGB.counter > 90000) {
 
                         console.log(`pc after = ${cpu.registers.pc}`)
                         }

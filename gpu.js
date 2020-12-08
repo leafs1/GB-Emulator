@@ -185,12 +185,12 @@ var GPU = {
 
     checkline: function() {
        // console.log(`checkline || modeclocks = ${GPU.modeclocks}, linemode = ${GPU.linemode}, `)
-       if (jsGB.counter > 60000) {
+       if (jsGB.counter > 90000) {
 
         console.log(`m checkline = ${cpu.registers.m}`)
     }
         GPU.modeclocks += cpu.registers.m
-        if (jsGB.counter > 60000) {
+        if (jsGB.counter > 90000) {
 
         console.log(`inside linemode = ${GPU.linemode}, ${GPU.modeclocks}`)
         }
