@@ -429,7 +429,7 @@ var cpu = {
         ANDr_e: function(){cpu.registers.a &= cpu.registers.e; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ANDr_h: function(){cpu.registers.a &= cpu.registers.h; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
         ANDr_l: function(){cpu.registers.a &= cpu.registers.l; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
-        ANDr_a: function(){cpu.registers.a &= cpu.registers.a; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1;},
+        ANDr_a: function(){console.log(`And a before = ${cpu.registers.a}`); cpu.registers.a &= cpu.registers.a; console.log(`And a mid 1 = ${cpu.registers.a}`); cpu.registers.a &= 255; console.log(`And a mid 2 = ${cpu.registers.a}`);cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m = 1; console.log(`And a after = ${cpu.registers.a}`);},
         ANDHL: function(){cpu.registers.a&=MMU.readByte((cpu.registers.h<<8)+cpu.registers.l); cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m=2;},
         ANDn: function(){cpu.registers.a&=MMU.readByte(cpu.registers.pc); cpu.registers.pc++; cpu.registers.a &= 255; cpu.registers.f = cpu.registers.a?0:0x80; cpu.registers.m=2;},
 

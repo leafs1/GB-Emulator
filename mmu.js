@@ -124,13 +124,13 @@ var MMU = {
             //console.log(`inner address = ${addr}`)
             // BIOS
             if (MMU.inBios) {
+                console.log(`in bios`)
                 if (addr < 256) {
                     return MMU.bios[addr]
                 } else if (cpu.registers.pc == 0x0100) {
                     MMU.inBios = 0
                 }
             } else {
-                //console.log("else")
                 //console.log(MMU.rom.charCodeAt(addr))
                 return MMU.rom.charCodeAt(addr)
             }
@@ -193,9 +193,9 @@ var MMU = {
 
             
         
-        }  if (0xff8f <= addr && addr < 0xfffe) {             // Zero-Page Ram
+        }  if (0xff80 <= addr && addr < 0xfffe) {             // Zero-Page Ram
             //console.log("Zero page ram")
-            //console.log(MMU.zeroPageRam)
+            console.log(MMU.zeroPageRam)
             return MMU.zeroPageRam[addr&0x7f]
         
         }  if (addr == 0xffff) {                      // Interrupt Enable Register
@@ -315,7 +315,7 @@ var MMU = {
                 GPU.writeByte(addr,val);
             }
         
-        } else if (0xff8f <= addr && addr < 0xfffe) {             // Zero-Page Ram
+        } else if (0xff80 <= addr && addr < 0xfffe) {             // Zero-Page Ram
             console.log("zero Page")
             MMU.zeroPageRam[addr&0x7f] = val
         
