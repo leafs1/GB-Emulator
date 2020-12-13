@@ -121,7 +121,7 @@
                 trace: '',
 
                 frame: function() {
-                    console.log("frame")
+                    //console.log("frame")
                     var fclock = cpu.clock.m+17556;
                     var brk = document.getElementById('breakpoint').value;
                     var t0 = new Date();
@@ -137,16 +137,17 @@
                     jsGB.counter ++
                     //console.log(`counter html = ${jsGB.counter}`)
                         var readB = MMU.readByte(cpu.registers.pc++)
-                        if (jsGB.counter > 90000) {
-                            console.log(`curline reset = ${GPU.curline}, ${GPU.raster}, ${GPU.linemode}, ${GPU.modeclocks}`)
-                            console.log(`readB = ${readB}`)
-                            console.log(`f = ${cpu.registers.f}`)
+                        //4040000
+                        if (jsGB.counter > 4035000) {
+                            //console.log(`curline reset = ${GPU.curline}, ${GPU.raster}, ${GPU.linemode}, ${GPU.modeclocks}`)
+                            //console.log(`readB = ${readB}`)
+                            //console.log(`f = ${cpu.registers.f}`)
                         }
                         
                         cpu.map[readB]();
-                        if (jsGB.counter > 90000) {
+                        if (jsGB.counter > 4035000) {
 
-                        console.log(`pc after = ${cpu.registers.pc}`)
+                        //console.log(`pc after = ${cpu.registers.pc}`)
                         }
                         //console.log(`read byte = ${readB}`)
                         //console.log(`info = ${cpu.registers.pc + 1}`)
@@ -156,11 +157,11 @@
                     {
                         cpu.halt=0; cpu.registers.ime=0;
                         var ifired = MMU.interruptEnableRegister & MMU.interruptFlag;
-                        if(ifired&1) { console.log(`if before 1 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xFE; cpu.operations.RST40(); console.log(`if after 1 = ${MMU.interruptFlag}`);}
-                        else if(ifired&2) { console.log(`if before 2 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xFD; cpu.operations.RST48();console.log(`if after 2 = ${MMU.interruptFlag}`); }
-                        else if(ifired&4) { console.log(`if before 3 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xFB; cpu.operations.RST50(); console.log(`if after 3 = ${MMU.interruptFlag}`);}
-                        else if(ifired&8) { console.log(`if before 4 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xF7; cpu.operations.RST58(); console.log(`if after 4 = ${MMU.interruptFlag}`);}
-                        else if(ifired&16) { console.log(`if before 5 = ${MMU.interruptFlag}`); MMU.interruptFlag &= 0xEF; cpu.operations.RST60(); console.log(`if after 5 = ${MMU.interruptFlag}`);}
+                        if(ifired&1) {  MMU.interruptFlag &= 0xFE; cpu.operations.RST40(); }
+                        else if(ifired&2) {  MMU.interruptFlag &= 0xFD; cpu.operations.RST48();}
+                        else if(ifired&4) {  MMU.interruptFlag &= 0xFB; cpu.operations.RST50();}
+                        else if(ifired&8) {  MMU.interruptFlag &= 0xF7; cpu.operations.RST58();}
+                        else if(ifired&16) {  MMU.interruptFlag &= 0xEF; cpu.operations.RST60();}
                     else { cpu.registers.ime=1; }
                     }
                     //jsGB.dbgtrace();
@@ -233,7 +234,7 @@
                     jsGB.trace = '';
                     jsGB.pause();
                 
-                    console.log('MAIN Reset.');
+                    //console.log('MAIN Reset.');
                 },
                 
                 run: function() {
@@ -261,8 +262,8 @@
                     {
                     if(t[i].className=='reg')
                     {
-                        console.log("its reg")
-                        console.log(t[i].getAttribute('rel'))
+                        //console.log("its reg")
+                        //console.log(t[i].getAttribute('rel'))
                         switch(t[i].getAttribute('rel'))
                     {
                     case 'a': case 'b': case 'c': case 'd': case 'e':
@@ -280,14 +281,14 @@
                         break;
                     }
                     t[i].innerHTML = x;
-                    console.log(`x= ${x}`)
+                    //console.log(`x= ${x}`)
                     }
                     else if(t[i].className=='io')
                     {
                         j = parseInt(t[i].getAttribute('rel'),16);
                         x = MMU.readByte(0xFF00+j).toString(16)
-                        console.log(`j = ${j}`)
-                        console.log(`x = ${x}`)
+                        //console.log(`j = ${j}`)
+                        //console.log(`x = ${x}`)
                         
                     if(typeof(x) != 'undefined')
                     {
@@ -330,9 +331,9 @@
                     cpu.halt=0; cpu.registers.ime=0;
                     if((MMU.interruptEnableRegister&1) && (MMU.interruptFlag&1))
                     {
-                        console.log(`if before 6 = ${MMU.interruptFlag}`);
+                        //console.log(`if before 6 = ${MMU.interruptFlag}`);
                         MMU.interruptFlag &= 0xFE; cpu.operations.RST40();
-                        console.log(`if after 6 = ${MMU.interruptFlag}`);
+                        //console.log(`if after 6 = ${MMU.interruptFlag}`);
                     }
                     }
                     else

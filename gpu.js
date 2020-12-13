@@ -123,7 +123,7 @@ var GPU = {
             }
         }
 
-        console.log("starting screen")
+        //console.log("starting screen")
 
         // Initialize canvas
         canvas = document.getElementById('screen')
@@ -131,7 +131,7 @@ var GPU = {
             GPU.canvas = canvas.getContext('2d')
 
             if (!GPU.canvas) {
-                console.log("Canvas not created")
+                //console.log("Canvas not created")
             } else {
                 if (GPU.canvas.createImageData) {
                     GPU.scrn = GPU.canvas.createImageData(160, 144)
@@ -162,7 +162,7 @@ var GPU = {
         GPU.raster = 0
         GPU.ints = 0
         GPU.lcdon = 0
-        console.log("lcdon2")
+        //console.log("lcdon2")
         GPU.bgon = 0
         GPU.objon = 0
         GPU.winon = 0
@@ -180,19 +180,15 @@ var GPU = {
         GPU.bgmapbase = 0x1800
         GPU.wintilebase = 0x1800
 
-        console.log("GPU reset")
+        //console.log("GPU reset")
     },
 
     checkline: function() {
-       // console.log(`checkline || modeclocks = ${GPU.modeclocks}, linemode = ${GPU.linemode}, `)
-       if (jsGB.counter > 90000) {
-
-        console.log(`m checkline = ${cpu.registers.m}`)
-    }
+       
         GPU.modeclocks += cpu.registers.m
-        if (jsGB.counter > 90000) {
+        if (jsGB.counter > 110000) {
 
-        console.log(`inside linemode = ${GPU.linemode}, ${GPU.modeclocks}`)
+        //console.log(`inside linemode = ${GPU.linemode}, ${GPU.modeclocks}`)
         }
         // Hblank
         if (GPU.linemode == 0) {
@@ -240,7 +236,7 @@ var GPU = {
                 GPU.modeclocks = 0
                 GPU.linemode = 0
                 if (GPU.lcdon) {
-                    console.log("lcdon true")
+                   // console.log("lcdon true")
                     if (GPU.bgon) {
                         var linebase = GPU.curscan
                         var mapbase = GPU.bgmapbase + ((((GPU.curline + GPU.yscrl)&255)>>3)<<5)
@@ -289,7 +285,7 @@ var GPU = {
                                 linebase += 4
                             } while (--w)
                         } 
-                        console.log(`bgon || linebase = ${linebase}, mapbase = ${mapbase}, y = ${y}, x = ${x}, t = ${t}, w = ${w}, tilerow = ${tilerow}`)
+                        //console.log(`bgon || linebase = ${linebase}, mapbase = ${mapbase}, y = ${y}, x = ${x}, t = ${t}, w = ${w}, tilerow = ${tilerow}`)
                     }
 
                     if (GPU.objon) {
@@ -316,7 +312,7 @@ var GPU = {
                                     if (obj.palette) {
                                         pal = GPU.palette.obj1
                                     } else {
-                                        pal = GPU.pal.obj0
+                                        pal = GPU.palette.obj0
                                     }
 
                                     linebase = (GPU.curline * 160 + obj.x) * 4
@@ -352,7 +348,7 @@ var GPU = {
                                 }
                             }
                         }
-                        console.log(`objon || cnt = ${cnt}, tilerow = ${tilerow}, obj = ${obj}, pal = ${pal}, x = ${x}, linebase = ${linebase}, `)
+                        //console.log(`objon || cnt = ${cnt}, tilerow = ${tilerow}, obj = ${obj}, pal = ${pal}, x = ${x}, linebase = ${linebase}, `)
                     }
                 }
             }
@@ -360,18 +356,19 @@ var GPU = {
         }
 
         //console.log("done check-line")
+        
     },
 
     // read 8-bit byte
     readByte: function(addr) {
         var gaddr = addr - 0xFF40
 
-        console.log(`gadr = ${gaddr}`)
+        //console.log(`gadr = ${gaddr}`)
 
         if (gaddr == 0) {
-            console.log("in gaddr 0")
-            console.log(`GPU.lcdon = ${GPU.lcdon?0x80:0}, GPU.bgtilebase = ${(GPU.bgtilebase == 0x0000)?0x10:0}, GPU.bgmapbase = ${GPU.objsize?0x04:0}, GPU.objon = ${GPU.objon?0x02:0}, GPU.bgon = ${GPU.bgon?0x01:0}`)
-            console.log("lcdon 3")
+            //console.log("in gaddr 0")
+            //console.log(`GPU.lcdon = ${GPU.lcdon?0x80:0}, GPU.bgtilebase = ${(GPU.bgtilebase == 0x0000)?0x10:0}, GPU.bgmapbase = ${GPU.objsize?0x04:0}, GPU.objon = ${GPU.objon?0x02:0}, GPU.bgon = ${GPU.bgon?0x01:0}`)
+            //console.log("lcdon 3")
             return (GPU.lcdon?0x80:0) | ((GPU.bgtilebase == 0x0000)?0x10:0) | ((GPU.bgmapbase==0x1c00)?0x08:0) | (GPU.objsize?0x04:0) | (GPU.objon?0x02:0) | (GPU.bgon?0x01:0)
         } else if (gaddr == 1) {
             return (GPU.curline == GPU.raster?4:0) | GPU.linemode
@@ -380,7 +377,7 @@ var GPU = {
         } else if (gaddr == 3) {
             return GPU.xscrl
         } else if (gaddr == 4) {
-            console.log(`curline = ${GPU.curline}`)
+            //console.log(`curline = ${GPU.curline}`)
             return GPU.curline
         } else if (gaddr == 5) {
             return GPU.raster
@@ -391,13 +388,13 @@ var GPU = {
 
     // write 8-bit byte
     writeByte: function(addr, val) {
-        console.log(`GPU.writeByte`)
+        //console.log(`GPU.writeByte`)
 
         var gaddr = addr - 0xff40
         GPU.reg[gaddr] = val
 
         if (gaddr == 0) {
-            console.log("lcdon 4")
+            //console.log("lcdon 4")
             GPU.lcdon = (val & 0x80)? 1:0
             GPU.bgtilebase = (val & 0x10)? 0x0000:0x0800
             GPU.bgmapbase = (val & 0x08)? 0x1c00:0x1800
